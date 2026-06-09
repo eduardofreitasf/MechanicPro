@@ -33,8 +33,8 @@ Before you begin, ensure you have the following installed:
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/eduardofreitasf/mechanic_shop.git
-   cd mechanic_shop
+   git clone https://github.com/eduardofreitasf/MechanicPro.git
+   cd MechanicPro
    ```
 
 2. **Install dependencies:**
