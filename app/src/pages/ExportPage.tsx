@@ -62,7 +62,7 @@ export function ExportPage() {
         </div>
       </header>
 
-      <div className="grid-cards">
+      <div className="grid-3-col">
         {exportOptions.map((option) => {
           const isExporting = exporting === option.id;
           const wasExported = lastExported?.id === option.id;

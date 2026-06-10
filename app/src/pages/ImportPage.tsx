@@ -111,7 +111,19 @@ export function ImportPage() {
         </div>
       )}
 
-      <div className="grid-cards">
+      <div className="card" style={{ marginBottom: "24px", padding: "24px", background: "#f8fafc" }}>
+        <h4 style={{ marginBottom: "12px", display: "flex", alignItems: "center", gap: "8px" }}>
+          <FileText size={18} color="var(--text-muted)" /> Notas sobre o formato
+        </h4>
+        <ul style={{ fontSize: "0.85rem", color: "var(--text-muted)", paddingLeft: "20px", lineHeight: "1.6" }}>
+          <li>O ficheiro deve ser um CSV separado por vírgulas.</li>
+          <li>A primeira linha deve conter os cabeçalhos.</li>
+          <li>Ao importar veículos, o cliente já deve estar registado com o nome exato.</li>
+          <li>Ao importar serviços, a matrícula do veículo já deve estar registada.</li>
+        </ul>
+      </div>
+
+      <div className="grid-3-col">
         {importOptions.map((option) => {
           const isImporting = importing === option.id;
           const showResult = results?.id === option.id;
@@ -188,18 +200,6 @@ export function ImportPage() {
             </div>
           );
         })}
-      </div>
-      
-      <div className="card" style={{ marginTop: "40px", padding: "24px", background: "#f8fafc" }}>
-        <h4 style={{ marginBottom: "12px", display: "flex", alignItems: "center", gap: "8px" }}>
-          <FileText size={18} color="var(--text-muted)" /> Notas sobre o formato
-        </h4>
-        <ul style={{ fontSize: "0.85rem", color: "var(--text-muted)", paddingLeft: "20px", lineHeight: "1.6" }}>
-          <li>O ficheiro deve ser um CSV separado por vírgulas.</li>
-          <li>A primeira linha deve conter os cabeçalhos.</li>
-          <li>Ao importar veículos, o cliente já deve estar registado com o nome exato.</li>
-          <li>Ao importar serviços, a matrícula do veículo já deve estar registada.</li>
-        </ul>
       </div>
     </div>
   );

@@ -451,6 +451,12 @@ body {
   gap: 20px;
 }
 
+.grid-3-col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
 .grid-2-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -511,6 +517,10 @@ body {
 
   .grid-cards {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+
+  .grid-3-col {
+    grid-template-columns: 1fr;
   }
 
   .grid-2-col {
