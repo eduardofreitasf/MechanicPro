@@ -1,40 +1,23 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, Plus, Trash2, Wrench, ArrowUpDown } from "lucide-react";
-import { serviceOrderService } from "../services/serviceOrderService";
-import { ServiceOrder } from "../db";
+import { useServiceOrderStore } from "../store/useServiceOrderStore";
 import { ConfirmModal } from "../components/ConfirmModal";
 
 export function ServicesPage() {
   const navigate = useNavigate();
-  const [orders, setOrders] = useState<ServiceOrder[]>([]);
-  const [search, setSearch] = useState(() => sessionStorage.getItem("services_search") || "");
-  const [sortOrder, setSortOrder] = useState<"ASC" | "DESC">(
-    () => (sessionStorage.getItem("services_sortOrder") as "ASC" | "DESC") || "DESC"
-  );
+  const { serviceOrders: orders, search, sortOrder, setSearch, setSortOrder, fetchServiceOrders, deleteServiceOrder } = useServiceOrderStore();
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
-  const loadOrders = async () => {
-    try {
-      const result = await serviceOrderService.getServiceOrders(search, sortOrder);
-      setOrders(result);
-    } catch (err) {
-      console.error("Erro ao carregar ordens de serviço", err);
-    }
-  };
-
   useEffect(() => {
-    loadOrders();
-    sessionStorage.setItem("services_search", search);
-    sessionStorage.setItem("services_sortOrder", sortOrder);
-  }, [search, sortOrder]);
+    fetchServiceOrders();
+  }, [fetchServiceOrders]);
 
   const handleDelete = async () => {
     if (deleteId === null) return;
     try {
-      await serviceOrderService.deleteServiceOrder(deleteId);
+      await deleteServiceOrder(deleteId);
       setDeleteId(null);
-      loadOrders();
     } catch (err) {
       console.error("Erro ao eliminar ordem", err);
     }
