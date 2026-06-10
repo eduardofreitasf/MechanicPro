@@ -51,7 +51,7 @@ export function ClientsPage() {
     <>
       <header className="header">
         <h1>Clientes</h1>
-        <div style={{ display: "flex", gap: "16px" }}>
+        <div className="header-actions">
           <div className="input-group">
             <Search className="input-icon" size={18} />
             <input
@@ -70,6 +70,7 @@ export function ClientsPage() {
       </header>
 
       <div className="card">
+        <div className="table-scroll">
         <table className="table">
           <thead>
             <tr>
@@ -103,6 +104,7 @@ export function ClientsPage() {
             ))}
           </tbody>
         </table>
+        </div>
         {clients.length === 0 && (
           <div className="empty-state">
             <Users size={48} style={{ opacity: 0.2, marginBottom: "16px" }} />
