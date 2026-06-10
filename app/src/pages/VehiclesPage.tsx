@@ -1,30 +1,19 @@
 import { useEffect, useState } from "react";
 import { Search, Plus, Trash2, Car, Edit } from "lucide-react";
-import { vehicleService } from "../services/vehicleService";
+import { useVehicleStore } from "../store/useVehicleStore";
 import { Vehicle } from "../db";
 import { ConfirmModal } from "../components/ConfirmModal";
 import { VehicleModal } from "../components/VehicleModal";
 
 export function VehiclesPage() {
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const [search, setSearch] = useState(() => sessionStorage.getItem("vehicles_search") || "");
+  const { vehicles, search, setSearch, fetchVehicles, deleteVehicle } = useVehicleStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
-  const loadData = async () => {
-    try {
-      const vList = await vehicleService.getVehicles(search);
-      setVehicles(vList);
-    } catch (err) {
-      console.error("Erro ao carregar dados", err);
-    }
-  };
-
   useEffect(() => {
-    loadData();
-    sessionStorage.setItem("vehicles_search", search);
-  }, [search]);
+    fetchVehicles();
+  }, [fetchVehicles]);
 
   const openCreateModal = () => {
     setEditingVehicle(null);
@@ -39,9 +28,8 @@ export function VehiclesPage() {
   const handleDelete = async () => {
     if (deleteId === null) return;
     try {
-      await vehicleService.deleteVehicle(deleteId);
+      await deleteVehicle(deleteId);
       setDeleteId(null);
-      loadData();
     } catch (err) {
       console.error("Erro ao eliminar veículo", err);
     }
@@ -122,7 +110,7 @@ export function VehiclesPage() {
       <VehicleModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
-        onSuccess={loadData} 
+        onSuccess={fetchVehicles} 
         vehicle={editingVehicle} 
       />
 

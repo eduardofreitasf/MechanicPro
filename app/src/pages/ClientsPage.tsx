@@ -1,30 +1,19 @@
 import { useEffect, useState } from "react";
 import { Search, Plus, Trash2, Users, Edit } from "lucide-react";
-import { clientService } from "../services/clientService";
+import { useClientStore } from "../store/useClientStore";
 import { Client } from "../db";
 import { ConfirmModal } from "../components/ConfirmModal";
 import { ClientModal } from "../components/ClientModal";
 
 export function ClientsPage() {
-  const [clients, setClients] = useState<Client[]>([]);
-  const [search, setSearch] = useState(() => sessionStorage.getItem("clients_search") || "");
+  const { clients, search, setSearch, fetchClients, deleteClient } = useClientStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
-  const loadClients = async () => {
-    try {
-      const result = await clientService.getClients(search);
-      setClients(result);
-    } catch (err) {
-      console.error("Erro ao carregar clientes", err);
-    }
-  };
-
   useEffect(() => {
-    loadClients();
-    sessionStorage.setItem("clients_search", search);
-  }, [search]);
+    fetchClients();
+  }, [fetchClients]);
 
   const openCreateModal = () => {
     setEditingClient(null);
@@ -39,9 +28,8 @@ export function ClientsPage() {
   const handleDelete = async () => {
     if (deleteId === null) return;
     try {
-      await clientService.deleteClient(deleteId);
+      await deleteClient(deleteId);
       setDeleteId(null);
-      loadClients();
     } catch (err) {
       console.error("Erro ao eliminar cliente", err);
     }
@@ -116,7 +104,7 @@ export function ClientsPage() {
       <ClientModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
-        onSuccess={loadClients} 
+        onSuccess={fetchClients} 
         client={editingClient} 
       />
 
