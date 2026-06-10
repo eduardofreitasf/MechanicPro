@@ -97,7 +97,7 @@ export function ServiceOrderDetailsPage() {
   return (
     <div className="order-details-container">
       {/* View Header - Hidden in Print */}
-      <header className="header no-print">
+      <header className="header no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', width: '100%' }}>
         <div className="header-title-group">
           <button className="btn-secondary" onClick={() => navigate("/services")} style={{ padding: '8px' }}>
             <ArrowLeft size={20} />
