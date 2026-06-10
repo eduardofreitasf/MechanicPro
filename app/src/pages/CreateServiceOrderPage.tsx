@@ -113,18 +113,20 @@ export function CreateServiceOrderPage() {
   const selectedVehicle = vehicles.find(v => v.id === parseInt(selectedVehicleId));
 
   return (
-    <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+    <div className="page-container">
       <header className="header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <div className="header-title-group">
           <button className="btn-secondary" onClick={() => navigate("/services")} style={{ padding: '8px' }}>
             <ArrowLeft size={20} />
           </button>
           <h1>Nova Ordem de Serviço</h1>
         </div>
+        <div className="header-actions">
         <button className="btn" onClick={handleSave}>
           <Save size={18} />
           Guardar Ordem
         </button>
+        </div>
       </header>
 
       {error && (
@@ -133,11 +135,11 @@ export function CreateServiceOrderPage() {
         </div>
       )}
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div className="form-stack">
         {/* Main Info Card */}
         <div className="card" style={{ padding: '24px' }}>
           <h3 style={{ marginBottom: '20px' }}>Informações Gerais</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px', marginBottom: '24px' }}>
+          <div className="grid-form-fields" style={{ marginBottom: '24px' }}>
             <div className="form-group">
               <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 Cliente
@@ -185,7 +187,7 @@ export function CreateServiceOrderPage() {
             </div>
           </div>
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '24px' }}>
+          <div className="grid-form-fields-sm">
             <div className="form-group">
               <label>Data</label>
               <input type="date" className="form-input" style={{ width: '100%' }} required value={date} onChange={(e) => setDate(e.target.value)} />
@@ -221,7 +223,7 @@ export function CreateServiceOrderPage() {
               </button>
             </div>
           </div>
-          <div style={{ overflowX: 'auto' }}>
+          <div className="table-scroll">
             <table className="table" style={{ borderCollapse: 'separate', borderSpacing: 0, width: '100%' }}>
               <thead>
                 <tr>
@@ -261,7 +263,7 @@ export function CreateServiceOrderPage() {
         </div>
 
         {/* Bottom Section: Observations and Total */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '24px', alignItems: 'start' }}>
+        <div className="grid-main-side">
           <div className="card" style={{ padding: '24px' }}>
             <div className="form-group">
               <label>Observações</label>
