@@ -44,7 +44,7 @@ export function ServicesPage() {
     <>
       <header className="header">
         <h1>Serviços</h1>
-        <div style={{ display: "flex", gap: "16px" }}>
+        <div className="header-actions">
           <div className="input-group">
             <Search className="input-icon" size={18} />
             <input
@@ -59,8 +59,7 @@ export function ServicesPage() {
           <div className="input-group">
             <ArrowUpDown className="input-icon" size={18} />
             <select 
-              className="input" 
-              style={{ width: "180px", cursor: "pointer", appearance: "none" }}
+              className="input select-compact"
               value={sortOrder}
               onChange={(e) => setSortOrder(e.target.value as "ASC" | "DESC")}
             >
@@ -78,6 +77,7 @@ export function ServicesPage() {
 
 
       <div className="card">
+        <div className="table-scroll">
         <table className="table">
           <thead>
             <tr>
@@ -113,6 +113,7 @@ export function ServicesPage() {
             ))}
           </tbody>
         </table>
+        </div>
         {orders.length === 0 && (
           <div className="empty-state">
             <Wrench size={48} style={{ opacity: 0.2, marginBottom: "16px" }} />

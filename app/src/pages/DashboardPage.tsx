@@ -36,13 +36,13 @@ export function DashboardPage() {
   const BRAND_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+    <div className="page-stack">
       <header className="header">
         <div>
           <h1>Dashboard</h1>
           <p style={{ color: 'var(--text-muted)', marginTop: '4px' }}>Estatísticas e visão geral da oficina.</p>
         </div>
-        <div style={{ display: 'flex', gap: '12px' }}>
+        <div className="header-actions">
           <button className="btn btn-success" onClick={() => setIsClientModalOpen(true)}>
             <Plus size={18} />
             Registar Cliente
@@ -59,7 +59,7 @@ export function DashboardPage() {
       </header>
 
       {/* Stats Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
+      <div className="grid-stats">
         <StatCard 
           title="Serviços" 
           value={stats.servicesCount} 
@@ -81,7 +81,7 @@ export function DashboardPage() {
       </div>
 
       {/* Charts Section */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '24px' }}>
+      <div className="grid-charts">
         <div className="card" style={{ padding: '24px' }}>
           <h3 style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
             <Activity size={20} color="var(--primary)" /> Receita por Mês
@@ -128,7 +128,7 @@ export function DashboardPage() {
       </div>
 
       {/* Top Lists Section */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px' }}>
+      <div className="grid-lists">
         <div className="card" style={{ overflow: 'hidden' }}>
           <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '10px' }}>
             <UserCheck size={18} color="var(--primary)" />
@@ -187,6 +187,7 @@ export function DashboardPage() {
             Ver Todos
           </button>
         </div>
+        <div className="table-scroll">
         <table className="table" style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ textAlign: 'left', background: '#f8fafc' }}>
@@ -209,6 +210,7 @@ export function DashboardPage() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       <ClientModal 

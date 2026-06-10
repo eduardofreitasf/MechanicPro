@@ -51,7 +51,7 @@ export function VehiclesPage() {
     <>
       <header className="header">
         <h1>Veículos</h1>
-        <div style={{ display: "flex", gap: "16px" }}>
+        <div className="header-actions">
           <div className="input-group">
             <Search className="input-icon" size={18} />
             <input
@@ -70,6 +70,7 @@ export function VehiclesPage() {
       </header>
 
       <div className="card">
+        <div className="table-scroll">
         <table className="table">
           <thead>
             <tr>
@@ -109,6 +110,7 @@ export function VehiclesPage() {
             ))}
           </tbody>
         </table>
+        </div>
         {vehicles.length === 0 && (
           <div className="empty-state">
             <Car size={48} style={{ opacity: 0.2, marginBottom: "16px" }} />

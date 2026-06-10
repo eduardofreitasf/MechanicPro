@@ -42,7 +42,7 @@ export function VehicleHistoryOverlay({ isOpen, onClose, vehicleId, vehiclePlate
 
   return (
     <div className="modal-overlay" onClick={onClose} style={{ zIndex: 1000 }}>
-      <div className="modal" style={{ maxWidth: '700px', width: '90%', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }} onClick={(e) => e.stopPropagation()}>
+      <div className="modal modal-wide" onClick={(e) => e.stopPropagation()}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", paddingBottom: '15px', borderBottom: '1px solid var(--border)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <History size={22} color="var(--primary)" />
@@ -129,7 +129,7 @@ export function VehicleHistoryOverlay({ isOpen, onClose, vehicleId, vehiclePlate
                         
                         {(order.hours > 0 || order.observations) && (
                           <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px dashed var(--border)' }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                            <div className="grid-2-col">
                               {order.hours > 0 && (
                                 <div>
                                   <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '4px' }}>Mão de Obra</h4>

@@ -111,7 +111,7 @@ export function ImportPage() {
         </div>
       )}
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: "20px" }}>
+      <div className="grid-cards">
         {importOptions.map((option) => {
           const isImporting = importing === option.id;
           const showResult = results?.id === option.id;

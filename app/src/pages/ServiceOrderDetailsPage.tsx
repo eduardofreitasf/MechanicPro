@@ -92,17 +92,19 @@ export function ServiceOrderDetailsPage() {
   };
 
   if (loading) return <div className="main-content">Carregando...</div>;
-  if (!order) return <div className="main-content">Ordem não encontrada.</div>; return (
+  if (!order) return <div className="main-content">Ordem não encontrada.</div>;
+
+  return (
     <div className="order-details-container">
       {/* View Header - Hidden in Print */}
-      <header className="header no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', width: '100%' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+      <header className="header no-print">
+        <div className="header-title-group">
           <button className="btn-secondary" onClick={() => navigate("/services")} style={{ padding: '8px' }}>
             <ArrowLeft size={20} />
           </button>
           <h1 style={{ margin: 0 }}>Ordem de Serviço</h1>
         </div>
-        <div style={{ display: 'flex', gap: '12px' }}>
+        <div className="header-actions">
           <button className="btn-secondary" onClick={handlePrint} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Printer size={18} />
             <span>Imprimir PDF</span>
@@ -133,7 +135,7 @@ export function ServiceOrderDetailsPage() {
 
       {/* Screen View (Hidden in Print) */}
       <div className="no-print">
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '24px' }}>
+        <div className="grid-2-col" style={{ marginBottom: '24px' }}>
           <div className="card" style={{ padding: '24px' }}>
             <h3 style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <User size={18} color="var(--primary)" /> Informação do Cliente
@@ -160,7 +162,7 @@ export function ServiceOrderDetailsPage() {
           <h3 style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Calendar size={18} color="var(--primary)" /> Detalhes da Ordem
           </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '24px' }}>
+          <div className="grid-form-fields-sm">
             <div>
               <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Data</label>
               <div style={{ fontWeight: 600 }}>{new Date(order.created_at).toLocaleDateString('pt-PT')}</div>
@@ -177,6 +179,7 @@ export function ServiceOrderDetailsPage() {
         </div>
 
         <div className="card" style={{ marginBottom: '24px' }}>
+          <div className="table-scroll">
           <table className="table">
             <thead>
               <tr>
@@ -202,9 +205,10 @@ export function ServiceOrderDetailsPage() {
               )}
             </tbody>
           </table>
+          </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '24px' }}>
+        <div className="grid-main-side">
           <div className="card" style={{ padding: '24px' }}>
             <h3 style={{ marginBottom: '12px' }}>Observações</h3>
             <p style={{ whiteSpace: 'pre-wrap', color: order.observations ? 'var(--text)' : 'var(--text-muted)' }}>

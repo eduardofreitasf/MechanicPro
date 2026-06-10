@@ -11,6 +11,9 @@
   --text-muted: #64748b;
   --border: #e2e8f0;
   --danger: #ef4444;
+  --bp-medium: 1100px;
+  --bp-narrow: 900px;
+  --bp-minimum: 800px;
 }
 
 * {
@@ -105,6 +108,8 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
 .header h1 {
@@ -112,6 +117,19 @@ body {
   font-weight: 700;
   color: var(--text);
   letter-spacing: -0.02em;
+}
+
+.header-title-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
 }
 
 /* Button */
@@ -202,9 +220,17 @@ body {
   border-radius: 8px;
   font-size: 0.9rem;
   outline: none;
-  width: 280px;
+  width: 100%;
+  max-width: 280px;
   transition: all 0.2s;
   background: var(--surface);
+}
+
+.select-compact {
+  width: 100%;
+  max-width: 180px;
+  cursor: pointer;
+  appearance: none;
 }
 
 .input:focus {
@@ -380,6 +406,215 @@ body {
   padding: 64px;
   text-align: center;
   color: var(--text-muted);
+}
+
+/* Layout utilities */
+.page-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.page-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.grid-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.grid-charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  gap: 24px;
+}
+
+.grid-lists {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 24px;
+}
+
+.grid-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 20px;
+}
+
+.grid-2-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.grid-main-side {
+  display: grid;
+  grid-template-columns: 1fr minmax(280px, 350px);
+  gap: 24px;
+  align-items: start;
+}
+
+.grid-form-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 24px;
+}
+
+.grid-form-fields-sm {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 24px;
+}
+
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal-wide {
+  max-width: 700px;
+  width: 90%;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal.modal-wide {
+  max-width: 700px;
+}
+
+/* Responsive breakpoints */
+@media (max-width: 1100px) {
+  .grid-charts {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  }
+
+  .grid-lists {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  }
+
+  .grid-cards {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+
+  .grid-2-col {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-main-side {
+    grid-template-columns: 1fr;
+  }
+
+  .table th,
+  .table td {
+    padding: 12px 16px;
+  }
+}
+
+@media (max-width: 900px) {
+  .main-content {
+    padding: 24px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+
+  .header-actions .input-group {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .header-actions .input,
+  .header-actions .select-compact {
+    max-width: none;
+  }
+
+  .page-stack {
+    gap: 24px;
+  }
+
+  .modal-overlay {
+    padding: 16px;
+  }
+
+  .modal,
+  .modal-content {
+    max-width: calc(100vw - 32px);
+    padding: 24px;
+  }
+
+  .modal-wide {
+    width: 100%;
+    max-width: calc(100vw - 32px);
+  }
+
+  .form-grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .empty-state {
+    padding: 40px 24px;
+  }
+}
+
+@media (max-width: 800px) {
+  .sidebar {
+    width: 220px;
+  }
+
+  .sidebar-header {
+    padding: 24px 16px;
+    font-size: 1.1rem;
+  }
+
+  .sidebar-nav {
+    padding: 0 8px;
+  }
+
+  .nav-item {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+
+  .main-content {
+    padding: 20px;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 10px 12px;
+    font-size: 0.85rem;
+  }
+
+  .table td {
+    font-size: 0.875rem;
+  }
 }
 
 /* Print Template Styles (shared by Print and Download PDF) */
