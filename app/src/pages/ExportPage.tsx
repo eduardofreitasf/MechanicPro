@@ -62,7 +62,7 @@ export function ExportPage() {
         </div>
       </header>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: "20px" }}>
+      <div className="grid-cards">
         {exportOptions.map((option) => {
           const isExporting = exporting === option.id;
           const wasExported = lastExported?.id === option.id;
