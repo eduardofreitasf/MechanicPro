@@ -88,6 +88,24 @@ export const serviceOrderService = {
     return orders;
   },
 
+  async getClientHistory(clientId: number): Promise<ServiceOrder[]> {
+    const db = await getDb();
+    const orders = await db.select<ServiceOrder[]>(
+      `SELECT so.*, v.plate as vehicle_plate, v.brand as vehicle_brand, v.model as vehicle_model 
+       FROM service_orders so
+       JOIN vehicles v ON so.vehicle_id = v.id
+       WHERE v.client_id = ? AND so.deleted_at IS NULL 
+       ORDER BY so.created_at DESC`,
+      [clientId]
+    );
+
+    for (const order of orders) {
+      order.operations = await this.getOperations(order.id);
+    }
+
+    return orders;
+  },
+
   async getOperations(serviceOrderId: number): Promise<ServiceOperation[]> {
     const db = await getDb();
     return await db.select<ServiceOperation[]>(

@@ -4,12 +4,14 @@ import { useClientStore } from "../store/useClientStore";
 import { Client } from "../db";
 import { ConfirmModal } from "../components/ConfirmModal";
 import { ClientModal } from "../components/ClientModal";
+import { ClientProfileOverlay } from "../components/ClientProfileOverlay";
 
 export function ClientsPage() {
   const { clients, search, setSearch, fetchClients, deleteClient } = useClientStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [profileClient, setProfileClient] = useState<Client | null>(null);
 
   useEffect(() => {
     fetchClients();
@@ -69,20 +71,25 @@ export function ClientsPage() {
           </thead>
           <tbody>
             {clients.map((client) => (
-              <tr key={client.id}>
+              <tr 
+                key={client.id} 
+                style={{ cursor: "pointer" }} 
+                onClick={() => setProfileClient(client)}
+                className="hoverable-row"
+              >
                 <td style={{ fontWeight: 500 }}>{client.name}</td>
                 <td>{client.phone || <span style={{ color: "var(--text-muted)" }}>Nenhum</span>}</td>
                 <td className="actions-cell">
                   <button
                     className="btn edit"
-                    onClick={() => openEditModal(client)}
+                    onClick={(e) => { e.stopPropagation(); openEditModal(client); }}
                     title="Editar Cliente"
                   >
                     <Edit size={18} />
                   </button>
                   <button
                     className="btn danger"
-                    onClick={() => setDeleteId(client.id)}
+                    onClick={(e) => { e.stopPropagation(); setDeleteId(client.id); }}
                     title="Eliminar Cliente"
                   >
                     <Trash2 size={18} />
@@ -106,6 +113,12 @@ export function ClientsPage() {
         onClose={() => setIsModalOpen(false)} 
         onSuccess={fetchClients} 
         client={editingClient} 
+      />
+
+      <ClientProfileOverlay
+        isOpen={profileClient !== null}
+        onClose={() => setProfileClient(null)}
+        client={profileClient}
       />
 
        <ConfirmModal 
