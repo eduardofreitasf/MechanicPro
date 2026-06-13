@@ -4,12 +4,14 @@ import { useVehicleStore } from "../store/useVehicleStore";
 import { Vehicle } from "../db";
 import { ConfirmModal } from "../components/ConfirmModal";
 import { VehicleModal } from "../components/VehicleModal";
+import { VehicleProfileOverlay } from "../components/VehicleProfileOverlay";
 
 export function VehiclesPage() {
   const { vehicles, search, setSearch, fetchVehicles, deleteVehicle } = useVehicleStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [profileVehicle, setProfileVehicle] = useState<Vehicle | null>(null);
 
   useEffect(() => {
     fetchVehicles();
@@ -71,7 +73,12 @@ export function VehiclesPage() {
           </thead>
           <tbody>
             {vehicles.map((v) => (
-              <tr key={v.id}>
+              <tr 
+                key={v.id}
+                style={{ cursor: "pointer" }}
+                onClick={() => setProfileVehicle(v)}
+                className="hoverable-row"
+              >
                 <td style={{ fontWeight: 700, color: "var(--primary)" }}>{v.plate}</td>
                 <td>
                   <div style={{ fontWeight: 500 }}>{v.brand} {v.model}</div>
@@ -81,14 +88,14 @@ export function VehiclesPage() {
                 <td className="actions-cell">
                   <button
                     className="btn edit"
-                    onClick={() => openEditModal(v)}
+                    onClick={(e) => { e.stopPropagation(); openEditModal(v); }}
                     title="Editar Veículo"
                   >
                     <Edit size={18} />
                   </button>
                   <button
                     className="btn danger"
-                    onClick={() => setDeleteId(v.id)}
+                    onClick={(e) => { e.stopPropagation(); setDeleteId(v.id); }}
                     title="Eliminar Veículo"
                   >
                     <Trash2 size={18} />
@@ -112,6 +119,12 @@ export function VehiclesPage() {
         onClose={() => setIsModalOpen(false)} 
         onSuccess={fetchVehicles} 
         vehicle={editingVehicle} 
+      />
+
+      <VehicleProfileOverlay
+        isOpen={profileVehicle !== null}
+        onClose={() => setProfileVehicle(null)}
+        vehicle={profileVehicle}
       />
 
        <ConfirmModal 
