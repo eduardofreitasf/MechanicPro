@@ -22,6 +22,8 @@ left=3cm,  right=2.5cm
 	July\or August\or September\or October\or November\or December\fi
 	\space\the\year%
 }
+\usepackage{parskip}
+\usepackage{float}
 
 % -- Colors ---------------------------------------------------
 \usepackage{xcolor}
@@ -70,7 +72,7 @@ left=3cm,  right=2.5cm
 	\small\color{TextGray}\textit{MechanicPro \textemdash{} User Manual}%
 }
 \fancyhead[R]{%
-	\small\color{TextGray}v1.2.0%
+	\small\color{TextGray}v1.0.0%
 }
 \fancyfoot[L]{%
 	\small\color{TextGray}User Manual%
@@ -135,8 +137,8 @@ left=3cm,  right=2.5cm
 	linkcolor   = Blue,
 	urlcolor    = Blue,
 	citecolor   = Blue,
-	pdftitle    = {MechanicPro --- User Manual},
-	pdfauthor   = {Your Name},
+	pdftitle    = {MechanicPro - User Manual},
+	pdfauthor   = {Eduardo Freitas Fernandes},
 	pdfsubject  = {User Manual},
 	pdfkeywords = {MechanicPro, mechanic shop, user manual},
 }
@@ -194,18 +196,6 @@ left=3cm,  right=2.5cm
 	draw=RuleGray, fill=LightGray, rounded corners=2pt,
 	inner xsep=4pt, inner ysep=2pt, font=\small\ttfamily
 	](k){#1};%
-}
-
-% Placeholder for screenshots
-\newcommand{\screenshot}[1]{%
-	\begin{center}
-		\begin{tikzpicture}
-			\draw[dashed, color=RuleGray, fill=LightGray, rounded corners=4pt]
-			(0,0) rectangle (\linewidth-0.4cm, 5cm);
-			\node[color=TextGray] at (0.5\linewidth-0.2cm, 2.5cm)
-			{\small\textit{[Screenshot: #1]}};
-		\end{tikzpicture}
-	\end{center}
 }
 
 % -- Abstract Page --------------------------------------------
@@ -301,7 +291,7 @@ left=3cm,  right=2.5cm
 					@{\hskip 2cm}
 					>{\color{TextGray}\small\bfseries}l
 					>{\small}l}
-				Author    & Your Name      & Version   & 1.2.0      \\
+				Author    & Eduardo Freitas Fernandes      & Version   & 1.0.0      \\
 				Date      & \monthyear     & Status    &
 				\textcolor{StatusGreen}{\bfseries Final}        \\
 				Document  & User Manual & Language  & English    \\
@@ -340,14 +330,18 @@ left=3cm,  right=2.5cm
 	% -- Revision History -----------------------------------------
 	\chapter*{Revision History}
 
-	\noindent \begin{tabularx}{\textwidth}{c l X l}
-		\toprule
-		\textbf{Version} & \textbf{Date} & \textbf{Description} & \textbf{Author} \\
-		\midrule
-		1.0.0 & Jan 2026 & Initial document created          & Your Name \\
-		1.2.0 & May 2026 & CSV and PDF sections added        & Your Name \\
-		\bottomrule
-	\end{tabularx}
+	This section outlines the revision history of the document.
+
+	\begin{table}[H]
+		\centering
+		\begin{tabularx}{\textwidth}{c l X l}
+			\toprule
+			\textbf{Version} & \textbf{Date} & \textbf{Description} & \textbf{Author} \\
+			\midrule
+			1.0.0 & June 2026 & Initial document created           & Eduardo Freitas Fernandes \\
+			\bottomrule
+		\end{tabularx}
+	\end{table}
 	
 	\newpage
 	
@@ -368,12 +362,25 @@ left=3cm,  right=2.5cm
 	\chapter{Introduction}
 	
 	\section{About This Manual}
-	% Explain the purpose of this document and how it is structured.
-	% Who it is for, what it covers, and what it does not cover.
+	This manual is designed to guide you through the installation, setup, and daily use of MechanicPro. It provides step-by-step instructions for managing your shop's core operations, including clients, vehicles, and service orders.
+	
+	The document is structured sequentially, starting from basic installation and interface navigation, progressing to core workflows like creating service orders, and finishing with data management tasks such as CSV exports and PDF generation. 
+	
+	This manual is intended for end-users: shop owners, managers, and mechanics. It covers the practical application of the software. It does \emph{not} cover technical architecture, database design, or developer setup.
 	
 	\section{About MechanicPro}
-	% Brief, non-technical description of what the application does.
-	% Focus on the user's perspective: what problems it solves.
+	MechanicPro is a fast, secure, and easy-to-use desktop application specifically designed for mechanic shops. It replaces paper records and complicated spreadsheets with a streamlined digital system.
+	
+	With MechanicPro, you can:
+	\begin{itemize}
+		\item Register clients and their vehicles.
+		\item Track service orders, including parts, labor, and mileage.
+		\item Monitor your shop's performance via an interactive dashboard.
+		\item Print or download professional PDF invoices for your customers.
+		\item Back up your data at any time via CSV export.
+	\end{itemize}
+	
+	\notebox{MechanicPro runs entirely offline. All your data is stored securely on your local computer, ensuring complete privacy and fast access without requiring an internet connection.}
 	
 	\section{Conventions Used in This Manual}
 	
@@ -404,24 +411,30 @@ left=3cm,  right=2.5cm
 	
 	\section{System Requirements}
 	
-	\begin{tabularx}{\textwidth}{l X}
-		\toprule
-		\textbf{Component} & \textbf{Requirement} \\
-		\midrule
-		Operating System & Windows 10 or later / macOS 11 or later / Ubuntu 20.04 or later \\
-		RAM              & 4 GB minimum, 8 GB recommended \\
-		Disk Space       & % Fill in after checking the built binary size
-		\\
-		Additional       & Windows: WebView2 runtime (included in Windows 11) \\
-		\bottomrule
-	\end{tabularx}
+	The hardware and software requirements to run the application are listed in Table~\ref{tab:system_requirements}.
+	
+	\begin{table}[H]
+		\centering
+		\caption{System Requirements}
+		\label{tab:system_requirements}
+		\begin{tabularx}{\textwidth}{l X}
+			\toprule
+			\textbf{Component} & \textbf{Requirement} \\
+			\midrule
+			Operating System & Windows 10 or later / macOS 11 or later / Ubuntu 20.04 or later \\
+			RAM              & 4 GB minimum, 8 GB recommended \\
+			Disk Space       & 50 MB minimum (additional space required for database growth) \\
+			Additional       & Windows: WebView2 runtime (included in Windows 11) \\
+			\bottomrule
+		\end{tabularx}
+	\end{table}
 	
 	\section{Installing the Application}
 	
 	\subsection{Windows}
 	
 	\begin{steps}
-		\item Download the \texttt{MechanicPro\_1.2.0\_x64.msi} installer.
+		\item Download the \texttt{MechanicPro\_1.0.0\_x64.msi} installer.
 		\item Double-click the installer file.
 		\item Follow the on-screen instructions.
 		\item Launch \ui{MechanicPro} from the Start Menu or the desktop shortcut.
@@ -434,7 +447,7 @@ left=3cm,  right=2.5cm
 	\subsection{macOS}
 	
 	\begin{steps}
-		\item Download the \texttt{MechanicPro\_1.2.0\_x64.dmg} file.
+		\item Download the \texttt{MechanicPro\_1.0.0\_x64.dmg} file.
 		\item Open the \texttt{.dmg} and drag \ui{MechanicPro} to your
 		\ui{Applications} folder.
 		\item On first launch, right-click the app and select \ui{Open}.
@@ -444,13 +457,14 @@ left=3cm,  right=2.5cm
 	
 	\begin{steps}
 		\item Download the \texttt{.deb} or \texttt{.AppImage} package.
-		\item Install with \texttt{sudo dpkg -i MechanicPro\_1.2.0\_amd64.deb}
+		\item Install with \texttt{sudo dpkg -i MechanicPro\_1.0.0\_amd64.deb}
 		or make the AppImage executable and run it directly.
 	\end{steps}
 	
 	\section{First Launch}
-	% Describe what the user sees the very first time they open the app.
-	% Empty state, any welcome message, where data is stored.
+	When you open MechanicPro for the very first time, the application will automatically set up your secure, local database file. This process is instant and requires no configuration on your part.
+	
+	Because the database is new, your \ui{Dashboard} will be empty, showing zero clients, vehicles, and service orders. You are now ready to begin adding your shop's data.
 	
 	\notebox{MechanicPro stores all data locally on your machine. No account or
 		internet connection is required.}
@@ -461,20 +475,36 @@ left=3cm,  right=2.5cm
 	\chapter{Interface Overview}
 	
 	\section{Main Window}
-	% Describe the overall layout: sidebar/navigation, main content area,
-	% header bar, any status indicators.
+	The MechanicPro window is divided into two primary areas: the \textbf{Sidebar} on the left, which contains the main navigation menu, and the \textbf{Main Content Area} on the right, which displays the currently selected view (see Figure~\ref{fig:main_content}).
 	
-	\screenshot{Main application window}
+    \begin{figure}[H]
+		\centering
+		\includegraphics[width=0.9\textwidth]{figures/sidebar_main_content.png}
+		\caption{Main Page}
+		\label{fig:main_content}
+	\end{figure}
 	
 	\section{Navigation}
-	% How the user moves between sections (sidebar links, top menu, etc.)
-	% List all main sections accessible from navigation.
+	You can move between different sections of the application using the links in the left sidebar. Your current search filters and sorting preferences are remembered as you navigate between pages.
+	
+	The main sections are:
+	\begin{itemize}
+		\item \ui{Dashboard}: Summary statistics and shop performance charts.
+		\item \ui{Clients}: Manage the vehicle owners in your system.
+		\item \ui{Vehicles}: Manage the cars registered to your clients.
+		\item \ui{Service Orders}: Create, edit, and track repair and maintenance jobs.
+		\item \ui{Import / Export}: Backup and migrate your data using CSV files.
+	\end{itemize}
 	
 	\section{Dashboard}
-	% Brief intro here; the full dashboard chapter comes later.
-	% Just orient the user to what they see on startup.
+	When you launch the application, you will land on the Dashboard. This screen provides a high-level overview of your shop's operations, showing the total number of clients, active vehicles, and the status of recent service orders (see Figure~\ref{fig:dashboard_page}).
 	
-	\screenshot{Dashboard overview}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.9\textwidth]{figures/dashboard.png}
+		\caption{Dashboard Page}
+		\label{fig:dashboard_page}
+	\end{figure}
 	
 	% =============================================================
 	%  CHAPTER 4 --- CLIENTS
@@ -482,45 +512,63 @@ left=3cm,  right=2.5cm
 	\chapter{Managing Clients}
 	
 	\section{Viewing the Client List}
-	% How to access the clients section, what the list shows,
-	% how to search or filter.
+	To view your clients, click on \ui{Clients} in the sidebar. This opens a table displaying all registered vehicle owners. You can use the search bar at the top to quickly find a client by their name or phone number (see Figure~\ref{fig:clientes_listing}).
 	
-	\screenshot{Client list view}
-	
+    \begin{figure}[H]
+		\centering
+		\includegraphics[width=0.9\textwidth]{figures/clientes.png}
+		\caption{Clients listing page}
+		\label{fig:clientes_listing}
+	\end{figure}
+    
 	\section{Adding a Client}
 	
 	\begin{steps}
 		\item Navigate to the \ui{Clients} section.
-		\item Click \ui{New Client}.
-		\item Fill in the required fields:
+		\item Click the \ui{New Client} button.
+		\item In the modal that appears, fill in the fields:
 		\begin{itemize}
-			\item \ui{Name} --- full name of the client (required).
-			\item \ui{Phone} --- contact phone number.
-			\item \ui{Email} --- contact email address.
+			\item \ui{Name}: full name of the client (required). Note that you cannot have two active clients with the exact same name.
+			\item \ui{Phone}: contact phone number (optional).
 		\end{itemize}
-		\item Click \ui{Save}.
+		\item Click \ui{Save}. The list will automatically update to show the new client.
 	\end{steps}
 	
-	\section{Editing a Client}
+	\section{Editing or Deleting a Client}
 	
 	\begin{steps}
-		\item Locate the client in the list.
-		\item Click on the client's name or the edit icon.
-		\item Update the fields as needed.
-		\item Click \ui{Save}.
+		\item Locate the client in the list using the search bar.
+		\item Click the \ui{Edit} icon next to their name.
+		\item Update their Name or Phone number as needed, and click \ui{Save}.
+		\item To remove the client, click the \ui{Delete} button.
 	\end{steps}
 	
-	\section{Viewing a Client's History}
-	% How to see all service orders associated with a given client.
+	\dangerbox{Deleting a client does not permanently erase them from the database, but it hides them from all active lists. You can re-use their name for a new client later.}
 	
+	You can also view the history of a client, as shown in Figure~\ref{fig:client_history}.
+	
+    \begin{figure}[H]
+		\centering
+		\includegraphics[width=0.9\textwidth]{figures/historico_cliente.png}
+		\caption{Client history overlay}
+		\label{fig:client_history}
+	\end{figure}
+    
 	% =============================================================
 	%  CHAPTER 5 --- VEHICLES
 	% =============================================================
 	\chapter{Managing Vehicles}
 	
 	\section{Viewing the Vehicle List}
-	% How vehicles are listed, how they relate to clients.
+	Click \ui{Vehicles} in the sidebar to access the complete list of cars registered in the system. Each vehicle is inextricably linked to a specific client. You can use the search bar to locate a vehicle by its Licence Plate or Make (see Figure~\ref{fig:vehicles_page}).
 	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.9\textwidth]{figures/veiculos.png}
+		\caption{Vehicles listing page}
+		\label{fig:vehicles_page}
+	\end{figure}
+    
 	\section{Adding a Vehicle}
 	
 	\begin{steps}
@@ -528,73 +576,80 @@ left=3cm,  right=2.5cm
 		\item Click \ui{New Vehicle}.
 		\item Fill in the required fields:
 		\begin{itemize}
-			\item \ui{Licence Plate} --- unique identifier for the vehicle (required).
-			\item \ui{Make} --- manufacturer name.
-			\item \ui{Model} --- vehicle model.
-			\item \ui{Year} --- year of manufacture.
-			\item \ui{Owner} --- select the associated client.
+			\item \ui{Licence Plate}: unique identifier for the vehicle (required).
+			\item \ui{Make}: manufacturer name.
+			\item \ui{Model}: vehicle model.
+			\item \ui{Year}: year of manufacture.
+			\item \ui{Owner}: select the associated client.
 		\end{itemize}
 		\item Click \ui{Save}.
 	\end{steps}
 	
-	\section{Editing a Vehicle}
+	\section{Editing or Deleting a Vehicle}
 	
 	\begin{steps}
-		\item Locate the vehicle in the list.
-		\item Click the edit icon.
-		\item Update the fields as needed.
-		\item Click \ui{Save}.
+		\item Locate the vehicle in the list using the search bar.
+		\item Click the \ui{Edit} icon next to its plate.
+		\item Update the fields as needed, and click \ui{Save}.
+		\item To remove the vehicle, click the \ui{Delete} button.
 	\end{steps}
 	
+	\dangerbox{Deleting a vehicle hides it from active lists, but its historical service records are preserved for auditing purposes.}
+	
+	You can review the historical records for any vehicle (see Figure~\ref{fig:vehicles_history}).
+
+    \begin{figure}[H]
+		\centering
+		\includegraphics[width=0.9\textwidth]{figures/historico_veiculo.png}
+		\caption{Vehicle history overlay}
+		\label{fig:vehicles_history}
+	\end{figure}
+    
 	% =============================================================
 	%  CHAPTER 6 --- SERVICE ORDERS
 	% =============================================================
 	\chapter{Service Orders}
 	
 	\section{Overview}
-	% Explain what a service order is in the context of this app.
-	% What information it holds, what states it can be in.
-	
-	\begin{tabularx}{\textwidth}{l X}
-		\toprule
-		\textbf{Status} & \textbf{Meaning} \\
-		\midrule
-		% Fill in the actual statuses used in the app
-		Open       & The service has been registered but work has not started. \\
-		In Progress & Work is currently underway. \\
-		Completed  & The service has been finished. \\
-		\bottomrule
-	\end{tabularx}
+	A Service Order is the core document in MechanicPro. It records a specific job performed on a vehicle. It includes the vehicle's mileage, itemized operations (parts or tasks), total labor hours, your hourly rate, and the final calculated price.
 	
 	\section{Creating a Service Order}
 	
 	\begin{steps}
 		\item Navigate to \ui{Service Orders}.
 		\item Click \ui{New Order}.
-		\item Select the \ui{Client} and associated \ui{Vehicle}.
-		\item Describe the service requested in the \ui{Description} field.
-		\item Set the \ui{Status} and any other relevant fields.
+		\item Select the \ui{Client} and their associated \ui{Vehicle}.
+		\item Record the current \ui{Mileage} of the vehicle.
+		\item Add any general notes in the \ui{Observations} field.
+		\item Add individual \ui{Operations} (such as parts or specific tasks), giving each a description and a price.
+		\item Enter the total labor \ui{Hours} and your \ui{Hourly Rate}. The total price will calculate automatically based on the operations and labor.
 		\item Click \ui{Save}.
 	\end{steps}
 	
-	\notebox{You can also create a new client or vehicle directly from this
-		screen without leaving the service order form.}
+	Figure~\ref{fig:create_service_order} illustrates the creation of a new service order.
 	
-	\section{Updating a Service Order}
-	% How to change the status, add notes, update cost, etc.
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.9\textwidth]{figures/criar_servico.png}
+		\caption{Creating a new Service Order}
+		\label{fig:create_service_order}
+	\end{figure}
 	
-	\section{Changing the Order of Services}
-	% The app supports reordering --- explain how and why.
+	\section{Sorting Service Orders}
+	By default, service orders are listed chronologically. You can click the column headers in the Service Orders table to change the sorting (for example, sorting by Date in descending order to see the newest jobs first, or by Total Price to see the most expensive jobs).
 	
 	\section{Viewing Service History}
-	% How to access the history of completed or past orders.
-	% What information is visible in history view.
+	To see a history of all past service orders, you can view the main Service Orders list. Alternatively, viewing a specific Vehicle's profile will show a timeline of all service orders associated with that specific car (see Figure~\ref{fig:service_history}).
 	
-	\screenshot{Service history view}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.9\textwidth]{figures/ver_historico.png}
+		\caption{Service History View}
+		\label{fig:service_history}
+	\end{figure}
 	
 	\section{Downloading Service Details}
-	% The button that generates a PDF of a service order.
-	% Covered in more detail in Chapter 8.
+	Once a service order is finalized, you can generate a professional PDF invoice to print or email to your customer. Simply open the service order details and click the \ui{Download PDF} button. See Chapter 8 for more information on PDF generation.
 	
 	% =============================================================
 	%  CHAPTER 7 --- DASHBOARD
@@ -602,23 +657,32 @@ left=3cm,  right=2.5cm
 	\chapter{Dashboard}
 	
 	\section{Overview}
-	% What the dashboard shows at a glance.
-	% Purpose: quick status check, not detailed management.
+	The Dashboard provides an immediate snapshot of your shop's health and workload. It is designed to be a quick reference point rather than a detailed management screen (see Figure~\ref{fig:dashboard_overview}).
 	
-	\screenshot{Dashboard with data}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.9\textwidth]{figures/sidebar_main_content.png}
+		\caption{Dashboard Overview}
+		\label{fig:dashboard_overview}
+	\end{figure}
 	
-	\section{Statistics}
-	% Describe each statistic shown:
-	% total clients, total vehicles, open orders, completed orders, etc.
-	% What the numbers represent and how they are calculated.
+	\section{Statistics and Top Lists}
+	At the top of the dashboard, you will see key performance indicators:
+	\begin{itemize}
+		\item \ui{Serviços} (Total Services): The total number of service orders recorded.
+		\item \ui{Clientes} (Total Clients): The number of active clients.
+		\item \ui{Veículos} (Total Vehicles): The number of active vehicles.
+	\end{itemize}
 	
-	\section{Quick Actions}
-	% The shortcut buttons available on the dashboard
-	% (e.g., create client, create vehicle directly from dashboard).
+	Below the key metrics, you will find quick-reference lists for your \ui{Frequent Clients} and \ui{Frequent Vehicles}, ranking those with the most recorded services, as well as a list of \ui{Recent Services} for quick access.
 	
 	\section{Charts}
-	% Describe the charts shown (recharts library).
-	% What period they cover, what they represent.
+	The dashboard also includes interactive charts to visualize your shop's trends:
+	\begin{itemize}
+		\item \ui{Revenue by Month}: An area chart showing the total value of services performed each month.
+		\item \ui{Services by Brand}: A bar chart showing the breakdown of vehicles serviced by their manufacturer.
+	\end{itemize}
+	You can hover over the data points in these charts to see exact numbers.
 	
 	% =============================================================
 	%  CHAPTER 8 --- DATA MANAGEMENT
@@ -626,43 +690,69 @@ left=3cm,  right=2.5cm
 	\chapter{Data Management}
 	
 	\section{Exporting Data to CSV}
-	% Which entities can be exported (clients, vehicles, orders).
-	% How to trigger the export, where the file is saved.
+	MechanicPro allows you to export your data (Clients, Vehicles, and Service Orders) at any time to standard CSV files, which can be opened in Excel or Google Sheets.
 	
 	\begin{steps}
-		\item Navigate to the \ui{Export} section.
-		\item Select the data to export.
+		\item Navigate to the \ui{Import / Export} section in the sidebar.
+		\item Under the Export tab, select the type of data you wish to export.
 		\item Click \ui{Export CSV}.
-		\item Choose a location to save the file.
+		\item Choose a location on your computer to save the file.
 	\end{steps}
 	
 	\section{Importing Data from CSV}
-	% How to prepare a CSV file for import.
-	% Column format requirements.
-	% How to trigger the import.
+	You can bulk-import clients and vehicles from existing spreadsheets to save time during initial setup.
 	
 	\warnbox{Importing a CSV file will add records to the existing data.
 		It does not replace or delete current records.}
 	
 	\subsection{Required CSV Format}
 	
-	The import file must use UTF-8 encoding and include the following columns:
+	The import file must use UTF-8 encoding. The columns must exactly match the system's requirements:
 	
-	\begin{tabularx}{\textwidth}{l l X}
-		\toprule
-		\textbf{Column} & \textbf{Required} & \textbf{Notes} \\
-		\midrule
-		% Fill in the actual columns once confirmed from source code
-		name   & Yes & Full name of the client \\
-		phone  & No  & Contact number \\
-		email  & No  & Contact email \\
-		\bottomrule
-	\end{tabularx}
+	\subsubsection*{Clients CSV}
+	
+	The expected structure for the clients CSV file is detailed in Table~\ref{tab:csv_clients}.
+
+	\begin{table}[H]
+		\centering
+		\caption{Required CSV Format: Clients}
+		\label{tab:csv_clients}
+		\begin{tabularx}{\textwidth}{l l X}
+			\toprule
+			\textbf{Column} & \textbf{Required} & \textbf{Notes} \\
+			\midrule
+			name   & Yes & Full name of the client \\
+			phone  & No  & Contact number \\
+			\bottomrule
+		\end{tabularx}
+	\end{table}
+	
+	\vspace{10pt}
+	\subsubsection*{Vehicles CSV}
+	
+	The expected structure for the vehicles CSV file is detailed in Table~\ref{tab:csv_vehicles}.
+
+	\begin{table}[H]
+		\centering
+		\caption{Required CSV Format: Vehicles}
+		\label{tab:csv_vehicles}
+		\begin{tabularx}{\textwidth}{l l X}
+			\toprule
+			\textbf{Column} & \textbf{Required} & \textbf{Notes} \\
+			\midrule
+			plate  & Yes & Unique Licence Plate \\
+			brand  & Yes & Manufacturer (Make) \\
+			model  & Yes & Vehicle model \\
+			year   & No  & Manufacturing year \\
+			\bottomrule
+		\end{tabularx}
+	\end{table}
 	
 	\begin{steps}
-		\item Navigate to the \ui{Import} section.
+		\item Navigate to the \ui{Import / Export} section.
+		\item Select the type of data you are importing.
 		\item Click \ui{Choose File} and select your CSV file.
-		\item Review the preview.
+		\item Review the preview to ensure the columns align correctly.
 		\item Click \ui{Import}.
 	\end{steps}
 	
@@ -670,14 +760,13 @@ left=3cm,  right=2.5cm
 		Make an export backup before importing new data.}
 	
 	\section{Generating PDF Documents}
-	% How to download a service order as a PDF.
-	% What the PDF contains (fields, layout).
-	% Where the file is saved.
+	MechanicPro includes a built-in PDF generator for creating professional invoices and service summaries.
 	
 	\begin{steps}
-		\item Open a service order.
-		\item Click \ui{Download}.
-		\item Choose a save location.
+		\item Open a finalized service order from the \ui{Service Orders} list.
+		\item Review the total cost, mileage, and itemized lists to ensure accuracy.
+		\item Click the \ui{Download PDF} button.
+		\item The PDF will be saved to your computer, ready to be printed or emailed to the client.
 	\end{steps}
 	
 	% =============================================================
@@ -687,36 +776,45 @@ left=3cm,  right=2.5cm
 	
 	\section{Common Issues}
 	
-	\begin{tabularx}{\textwidth}{l X}
-		\toprule
-		\textbf{Problem} & \textbf{Solution} \\
-		\midrule
-		Application does not open
-		& Check that WebView2 is installed (Windows only).
-		Try reinstalling the application. \\
-		\addlinespace
-		CSV import fails
-		& Verify the file is UTF-8 encoded and that all required
-		columns are present with the correct header names. \\
-		\addlinespace
-		Data appears missing after reinstall
-		& The database is stored separately from the application.
-		See Section~\ref{sec:dataLocation} for the file location. \\
-		\addlinespace
-		PDF does not download
-		& Check that you have write permission to the chosen folder. \\
-		\bottomrule
-	\end{tabularx}
+	Table~\ref{tab:common_issues} lists some common issues and their solutions.
+
+	\begin{table}[H]
+		\centering
+		\caption{Common Troubleshooting Issues}
+		\label{tab:common_issues}
+		\begin{tabularx}{\textwidth}{l X}
+			\toprule
+			\textbf{Problem} & \textbf{Solution} \\
+			\midrule
+			Application does not open
+			& Check that WebView2 is installed (Windows only).
+			Try reinstalling the application. \\
+			\addlinespace
+			CSV import fails
+			& Verify the file is UTF-8 encoded and that all required
+			columns are present with the correct header names. \\
+			\addlinespace
+			Data appears missing after reinstall
+			& The database is stored separately from the application.
+			See Section~\ref{sec:dataLocation} for the file location. \\
+			\addlinespace
+			PDF does not download
+			& Check that you have write permission to the chosen folder. \\
+			\bottomrule
+		\end{tabularx}
+	\end{table}
 	
 	\section{Data File Location}
 	\label{sec:dataLocation}
-	% Where the SQLite database file is stored on each platform.
-	% Windows: %APPDATA%\mechanic_shop\
-	% macOS:   ~/Library/Application Support/mechanic_shop/
-	% Linux:   ~/.local/share/mechanic_shop/
+	If you need to manually back up your database file, or if you are moving MechanicPro to a new computer, you can find the SQLite database file at the following standard locations depending on your operating system:
 	
-	\notebox{You can back up your data by copying the database file to a safe
-		location. The filename is \texttt{mechanic\_shop.db}.}
+	\begin{itemize}
+		\item \textbf{Windows}: \texttt{\%APPDATA\%\textbackslash{}MechanicPro\textbackslash{}mechanicpro.db}
+		\item \textbf{macOS}: \texttt{\textasciitilde{}/Library/Application Support/MechanicPro/mechanicpro.db}
+		\item \textbf{Linux}: \texttt{\textasciitilde{}/.local/share/MechanicPro/mechanicpro.db}
+	\end{itemize}
+	
+	\notebox{You can back up your data by simply copying this \texttt{mechanicpro.db} file to a safe location (such as a USB drive or cloud folder) while the application is closed.}
 	
 	% =============================================================
 	%  APPENDICES
@@ -725,28 +823,29 @@ left=3cm,  right=2.5cm
 	
 	\chapter{Glossary}
 	
-	\begin{tabularx}{\textwidth}{l X}
-		\toprule
-		\textbf{Term} & \textbf{Definition} \\
-		\midrule
-		Client        & A person or entity whose vehicle is serviced. \\
-		Vehicle       & A car or other vehicle registered under a client. \\
-		Service Order & A record of a service performed or requested. \\
-		CSV           & Comma-Separated Values. A plain text file format
-		for tabular data. \\
-		PDF           & Portable Document Format. A fixed-layout document
-		format used for service records. \\
-		\bottomrule
-	\end{tabularx}
+	Table~\ref{tab:glossary} defines key terms used throughout this manual.
+
+	\begin{table}[H]
+		\centering
+		\caption{Glossary of Terms}
+		\label{tab:glossary}
+		\begin{tabularx}{\textwidth}{l X}
+			\toprule
+			\textbf{Term} & \textbf{Definition} \\
+			\midrule
+			Client        & A person or entity whose vehicle is serviced. \\
+			Vehicle       & A car or other vehicle registered under a client. \\
+			Service Order & A record of a service performed or requested. \\
+			CSV           & Comma-Separated Values. A plain text file format
+			for tabular data. \\
+			PDF           & Portable Document Format. A fixed-layout document
+			format used for service records. \\
+			\bottomrule
+		\end{tabularx}
+	\end{table}
 	
 	\chapter{Keyboard Shortcuts}
 	
-	\begin{tabularx}{\textwidth}{l X}
-		\toprule
-		\textbf{Shortcut} & \textbf{Action} \\
-		\midrule
-		% Fill in once confirmed from source code
-		\bottomrule
-	\end{tabularx}
+	There are currently no custom global keyboard shortcuts. Standard operating system shortcuts for copying (\key{Ctrl+C}) and pasting (\key{Ctrl+V}) apply within all text fields.
 	
 \end{document}
