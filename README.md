@@ -57,6 +57,13 @@ Before you begin, ensure you have the following installed:
    ```
    The compiled binaries will be available in `src-tauri/target/release`.
 
+## 📚 Documentation
+
+For more detailed information on how to use and understand the system, please refer to our official documentation:
+
+- **[User Manual](./docs/UserManual.pdf)**: A complete guide covering installation, interface navigation, and daily workflows.
+- **[Technical Report](./docs/TechnicalReport.pdf)**: An in-depth look at the system architecture, database design, and technical decisions.
+
 ## 📝 Changelog
 
 Check the [CHANGELOG.md](./CHANGELOG.md) to see the history of changes and new feature releases.
