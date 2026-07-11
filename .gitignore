@@ -1,0 +1,14 @@
+
+.vscode
+.env
+node_modules
+dist
+
+*.aux
+*.lof
+*.log
+*.out
+*.toc
+*.lot
+*.synctex.gz
+
