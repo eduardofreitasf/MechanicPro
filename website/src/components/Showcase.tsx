@@ -18,7 +18,7 @@ export function Showcase() {
         <div className="showcase-content animate-fade-up delay-1">
           <div className="mockup-container showcase-mockup">
             <img
-              src="/service-order-mockup.png"
+              src="/MechanicPro/service_order.jpeg"
               alt="MechanicPro Service Order Details"
             />
             <div className="mockup-overlay">

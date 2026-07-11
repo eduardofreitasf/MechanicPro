@@ -61,7 +61,7 @@ export function Hero() {
         <div className="hero-image-wrapper animate-fade-up delay-2">
           <div className="mockup-container hero-mockup">
             <img
-              src="/dashboard-mockup.png"
+              src="/MechanicPro/dashboard.jpeg"
               alt="MechanicPro Dashboard Interface"
             />
           </div>
