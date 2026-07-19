@@ -55,6 +55,19 @@ async function initDb(db: Database) {
       FOREIGN KEY (service_order_id) REFERENCES service_orders (id)
     );
   `);
+
+  // expenses table — idempotent, no ALTER needed (new table)
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS expenses (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      date        TEXT    NOT NULL,
+      description TEXT,
+      cost        REAL    NOT NULL,
+      receipt_no  TEXT,
+      created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
+      deleted_at  DATETIME
+    )
+  `);
 }
 
 export interface Client {
@@ -100,4 +113,14 @@ export interface ServiceOperation {
   service_order_id?: number;
   description: string;
   price: number;
+}
+
+export interface Expense {
+  id?: number;
+  date: string;
+  description?: string | null;
+  cost: number;
+  receipt_no?: string | null;
+  created_at?: string;
+  deleted_at?: string | null;
 }
