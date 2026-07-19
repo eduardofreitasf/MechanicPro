@@ -24,7 +24,7 @@ export function CreateServiceOrderPage() {
   const [observations, setObservations] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [operations, setOperations] = useState<ServiceOperation[]>(
-    Array(10).fill(null).map(() => ({ description: "", price: 0 }))
+    Array(10).fill(null).map(() => ({ description: "", price: 0, hide_price_in_pdf: false }))
   );
 
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -71,7 +71,7 @@ export function CreateServiceOrderPage() {
     setSelectedVehicleId("");
   }, [selectedClientId]);
 
-  const handleOperationChange = (index: number, field: keyof ServiceOperation, value: string | number) => {
+  const handleOperationChange = (index: number, field: keyof ServiceOperation, value: string | number | boolean) => {
     const newOps = [...operations];
     newOps[index] = { ...newOps[index], [field]: value };
     setOperations(newOps);
@@ -212,12 +212,12 @@ export function CreateServiceOrderPage() {
           <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h3 style={{ margin: 0 }}>Operações e Peças</h3>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Preencha a descrição e o preço para cada item.</span>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Preencha a descrição e o preço. Marque "Ocultar no PDF" para esconder o preço na impressão.</span>
               <button 
                 type="button" 
                 className="btn-secondary" 
                 style={{ padding: '4px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}
-                onClick={() => setOperations([...operations, { description: "", price: 0 }])}
+                onClick={() => setOperations([...operations, { description: "", price: 0, hide_price_in_pdf: false }])}
               >
                 <PlusCircle size={14} /> Adicionar Linha
               </button>
@@ -230,6 +230,7 @@ export function CreateServiceOrderPage() {
                   <th style={{ width: '50px', textAlign: 'center' }}>#</th>
                   <th>Descrição</th>
                   <th style={{ width: '150px' }}>Preço (€)</th>
+                  <th style={{ width: '120px', textAlign: 'center' }}>Ocultar no PDF</th>
                 </tr>
               </thead>
               <tbody>
@@ -253,6 +254,14 @@ export function CreateServiceOrderPage() {
                         placeholder="0.00" 
                         value={op.price || ""}
                         onChange={(e) => handleOperationChange(index, 'price', parseFloat(e.target.value) || 0)}
+                      />
+                    </td>
+                    <td style={{ textAlign: 'center' }}>
+                      <input
+                        type="checkbox"
+                        checked={!!op.hide_price_in_pdf}
+                        onChange={(e) => handleOperationChange(index, 'hide_price_in_pdf', e.target.checked)}
+                        title="Ocultar preço no PDF e impressão"
                       />
                     </td>
                   </tr>

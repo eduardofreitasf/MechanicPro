@@ -46,7 +46,9 @@ export const PrintTemplate = forwardRef<HTMLDivElement, PrintTemplateProps>(
             {order.operations?.map((op, index) => (
               <tr key={index} style={{ borderBottom: '1px solid #eee' }}>
                 <td style={{ padding: '14px 5px', color: '#333' }}>{op.description}</td>
-                <td style={{ textAlign: 'right', padding: '14px 5px', fontWeight: 500 }}>{op.price.toFixed(2)}€</td>
+                <td style={{ textAlign: 'right', padding: '14px 5px', fontWeight: 500 }}>
+                  {op.hide_price_in_pdf ? '' : `${op.price.toFixed(2)}€`}
+                </td>
               </tr>
             ))}
             <tr style={{ borderBottom: '1px solid #eee' }}>

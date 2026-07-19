@@ -180,7 +180,7 @@ export const importService = {
             if (lastColon !== -1) {
               const desc = part.substring(0, lastColon).trim();
               const price = parseFloat(part.substring(lastColon + 1).replace(/[^\d.]/g, "")) || 0;
-              if (desc) operations.push({ description: desc, price });
+              if (desc) operations.push({ description: desc, price, hide_price_in_pdf: false });
             }
           });
         }

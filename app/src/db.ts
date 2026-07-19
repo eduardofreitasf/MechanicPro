@@ -52,9 +52,18 @@ async function initDb(db: Database) {
       service_order_id INTEGER NOT NULL,
       description TEXT NOT NULL,
       price REAL NOT NULL,
+      hide_price_in_pdf INTEGER NOT NULL DEFAULT 0,
       FOREIGN KEY (service_order_id) REFERENCES service_orders (id)
     );
   `);
+
+  try {
+    await db.execute(
+      "ALTER TABLE service_operations ADD COLUMN hide_price_in_pdf INTEGER NOT NULL DEFAULT 0"
+    );
+  } catch {
+    // column already exists
+  }
 }
 
 export interface Client {
@@ -100,4 +109,5 @@ export interface ServiceOperation {
   service_order_id?: number;
   description: string;
   price: number;
+  hide_price_in_pdf?: boolean;
 }

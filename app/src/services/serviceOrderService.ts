@@ -66,8 +66,8 @@ export const serviceOrderService = {
     // Insert Operations
     for (const op of operations) {
       await db.execute(
-        "INSERT INTO service_operations (service_order_id, description, price) VALUES (?, ?, ?)",
-        [serviceOrderId, op.description, op.price]
+        "INSERT INTO service_operations (service_order_id, description, price, hide_price_in_pdf) VALUES (?, ?, ?, ?)",
+        [serviceOrderId, op.description, op.price, op.hide_price_in_pdf ? 1 : 0]
       );
     }
   },
