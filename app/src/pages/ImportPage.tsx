@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Users, Car, Wrench, Upload, CheckCircle, AlertCircle, FileText } from "lucide-react";
+import { Users, Car, Wrench, Upload, CheckCircle, AlertCircle, FileText, Receipt } from "lucide-react";
 import { importService } from "../services/importService";
 
 interface ImportOption {
@@ -38,6 +38,13 @@ export function ImportPage() {
       description: "Carregue um CSV com 'Matrícula', 'Quilometragem', 'Horas', 'Preço/Hora' e 'Operações'.",
       icon: <Wrench size={24} color="var(--primary)" />,
       importFn: importService.importServices,
+    },
+    {
+      id: "expenses",
+      label: "Importar Despesas",
+      description: "Carregue um CSV com 'Data' e 'Custo' (obrigatórios) e 'Descrição', 'Nº Recibo' (opcionais).",
+      icon: <Receipt size={24} color="var(--primary)" />,
+      importFn: importService.importExpenses,
     },
   ];
 
@@ -120,6 +127,7 @@ export function ImportPage() {
           <li>A primeira linha deve conter os cabeçalhos.</li>
           <li>Ao importar veículos, o cliente já deve estar registado com o nome exato.</li>
           <li>Ao importar serviços, a matrícula do veículo já deve estar registada.</li>
+          <li>Ao importar despesas: colunas obrigatórias <strong>Data</strong> e <strong>Custo</strong>; data aceite em <code>YYYY-MM-DD</code> ou <code>DD-MM-YYYY</code>.</li>
         </ul>
       </div>
 
