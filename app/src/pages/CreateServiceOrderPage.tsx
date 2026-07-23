@@ -21,6 +21,7 @@ export function CreateServiceOrderPage() {
   const [mileage, setMileage] = useState("");
   const [hours, setHours] = useState("1");
   const [hourlyRate, setHourlyRate] = useState("20");
+  const [hideLaborInPdf, setHideLaborInPdf] = useState(false);
   const [observations, setObservations] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [operations, setOperations] = useState<ServiceOperation[]>(
@@ -100,6 +101,7 @@ export function CreateServiceOrderPage() {
         parseFloat(hours),
         parseFloat(hourlyRate),
         observations,
+        hideLaborInPdf,
         validOps,
         date
       );
@@ -197,7 +199,13 @@ export function CreateServiceOrderPage() {
               <input type="number" className="form-input" style={{ width: '100%' }} required value={mileage} onChange={(e) => setMileage(e.target.value)} />
             </div>
             <div className="form-group">
-              <label>Mão de Obra (Horas)</label>
+              <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                Mão de Obra
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', fontWeight: 'normal', cursor: 'pointer', margin: 0 }}>
+                  <input type="checkbox" checked={hideLaborInPdf} onChange={(e) => setHideLaborInPdf(e.target.checked)} style={{ width: '14px', height: '14px', accentColor: 'var(--primary)', cursor: 'pointer' }} title="Ocultar custo no PDF" />
+                  Esconder
+                </label>
+              </label>
               <input type="number" step="0.5" className="form-input" style={{ width: '100%' }} required value={hours} onChange={(e) => setHours(e.target.value)} />
             </div>
             <div className="form-group">

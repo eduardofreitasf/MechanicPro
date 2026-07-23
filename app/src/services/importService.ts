@@ -185,7 +185,7 @@ export const importService = {
           });
         }
 
-        await serviceOrderService.createServiceOrder(vehicleId, mileage, hours, rate, observations, operations, date);
+        await serviceOrderService.createServiceOrder(vehicleId, mileage, hours, rate, observations, false, operations, date);
         imported++;
       } catch (err) {
         skipped++;

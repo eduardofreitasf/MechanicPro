@@ -91,6 +91,28 @@ export function ServiceOrderDetailsPage() {
     }
   };
 
+  const handleToggleOperation = async (opIndex: number, opId: number | undefined, hide: boolean) => {
+    if (!order || !opId) return;
+    try {
+      await serviceOrderService.updateOperationVisibility(opId, hide);
+      const newOps = [...(order.operations || [])];
+      newOps[opIndex] = { ...newOps[opIndex], hide_price_in_pdf: hide };
+      setOrder({ ...order, operations: newOps });
+    } catch (err) {
+      console.error("Erro ao atualizar visibilidade da operação", err);
+    }
+  };
+
+  const handleToggleLabor = async (hide: boolean) => {
+    if (!order) return;
+    try {
+      await serviceOrderService.updateLaborVisibility(order.id, hide);
+      setOrder({ ...order, hide_labor_in_pdf: hide });
+    } catch (err) {
+      console.error("Erro ao atualizar visibilidade da mão de obra", err);
+    }
+  };
+
   if (loading) return <div className="main-content">Carregando...</div>;
   if (!order) return <div className="main-content">Ordem não encontrada.</div>;
 
@@ -175,6 +197,20 @@ export function ServiceOrderDetailsPage() {
               <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Preço Hora</label>
               <div style={{ fontWeight: 600 }}>{order.hourly_rate.toFixed(2)}€/h</div>
             </div>
+            <div>
+              <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Visibilidade no PDF</label>
+              <div style={{ marginTop: '4px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 600, color: 'var(--text)' }}>
+                  <input 
+                    type="checkbox" 
+                    checked={!!order.hide_labor_in_pdf} 
+                    onChange={(e) => handleToggleLabor(e.target.checked)} 
+                    style={{ width: '18px', height: '18px', accentColor: 'var(--primary)', cursor: 'pointer' }} 
+                  />
+                  Esconder Mão de Obra
+                </label>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -186,6 +222,7 @@ export function ServiceOrderDetailsPage() {
                 <th style={{ width: '50px' }}>#</th>
                 <th>Descrição do Trabalho / Peças</th>
                 <th style={{ width: '150px', textAlign: 'right' }}>Preço (€)</th>
+                <th style={{ width: '120px', textAlign: 'center' }}>Esconder</th>
               </tr>
             </thead>
             <tbody>
@@ -194,11 +231,20 @@ export function ServiceOrderDetailsPage() {
                   <td style={{ color: 'var(--text-muted)' }}>{index + 1}</td>
                   <td>{op.description}</td>
                   <td style={{ textAlign: 'right', fontWeight: 500 }}>{op.price.toFixed(2)}€</td>
+                  <td style={{ textAlign: 'center' }}>
+                    <input
+                      type="checkbox"
+                      checked={!!op.hide_price_in_pdf}
+                      onChange={(e) => handleToggleOperation(index, op.id, e.target.checked)}
+                      title="Ocultar preço no PDF"
+                      style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: 'var(--primary)' }}
+                    />
+                  </td>
                 </tr>
               ))}
               {(!order.operations || order.operations.length === 0) && (
                 <tr>
-                  <td colSpan={3} style={{ textAlign: 'center', padding: '32px', color: 'var(--text-muted)' }}>
+                  <td colSpan={4} style={{ textAlign: 'center', padding: '32px', color: 'var(--text-muted)' }}>
                     Nenhuma operação registada.
                   </td>
                 </tr>

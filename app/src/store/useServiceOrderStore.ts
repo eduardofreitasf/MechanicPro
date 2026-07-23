@@ -17,6 +17,7 @@ interface ServiceOrderState {
     hours: number,
     hourlyRate: number,
     observations: string | null,
+    hideLaborInPdf: boolean,
     operations: ServiceOperation[],
     date: string
   ) => Promise<void>;
@@ -52,10 +53,10 @@ export const useServiceOrderStore = create<ServiceOrderState>((set, get) => ({
     }
   },
   
-  createServiceOrder: async (vehicleId, mileage, hours, hourlyRate, observations, operations, date) => {
+  createServiceOrder: async (vehicleId, mileage, hours, hourlyRate, observations, hideLaborInPdf, operations, date) => {
     set({ loading: true, error: null });
     try {
-      await serviceOrderService.createServiceOrder(vehicleId, mileage, hours, hourlyRate, observations, operations, date);
+      await serviceOrderService.createServiceOrder(vehicleId, mileage, hours, hourlyRate, observations, hideLaborInPdf, operations, date);
       await get().fetchServiceOrders();
     } catch (err: any) {
       set({ error: err.message, loading: false });
