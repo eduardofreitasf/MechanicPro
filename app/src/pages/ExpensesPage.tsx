@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react";
+import DatePicker, { registerLocale } from "react-datepicker";
+import { pt } from "date-fns/locale";
+import "react-datepicker/dist/react-datepicker.css";
 import {
   Search, Plus, Trash2, Receipt, BarChart3, List,
   ArrowUpDown, Calendar, TrendingDown, TrendingUp, Hash, AlertCircle,
@@ -29,9 +32,10 @@ interface AddExpenseModalProps {
   onSuccess: () => void;
 }
 
+registerLocale("pt", pt);
+
 function AddExpenseModal({ isOpen, onClose, onSuccess }: AddExpenseModalProps) {
-  const today = new Date().toISOString().split("T")[0];
-  const [date, setDate] = useState(today);
+  const [date, setDate] = useState<Date | null>(new Date());
   const [description, setDescription] = useState("");
   const [cost, setCost] = useState("");
   const [receiptNo, setReceiptNo] = useState("");
@@ -39,7 +43,7 @@ function AddExpenseModal({ isOpen, onClose, onSuccess }: AddExpenseModalProps) {
   const [saving, setSaving] = useState(false);
 
   const reset = () => {
-    setDate(today);
+    setDate(new Date());
     setDescription("");
     setCost("");
     setReceiptNo("");
@@ -50,13 +54,14 @@ function AddExpenseModal({ isOpen, onClose, onSuccess }: AddExpenseModalProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const parsedCost = parseFloat(cost);
     if (!date) { setError("A data é obrigatória."); return; }
+    const parsedCost = parseFloat(cost);
     if (isNaN(parsedCost) || parsedCost < 0) { setError("Introduza um custo válido."); return; }
+    const isoDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
     setSaving(true);
     try {
       await expenseService.createExpense({
-        date,
+        date: isoDate,
         description: description.trim() || null,
         cost: parsedCost,
         receipt_no: receiptNo.trim() || null,
@@ -94,7 +99,18 @@ function AddExpenseModal({ isOpen, onClose, onSuccess }: AddExpenseModalProps) {
 
           <div className="form-group">
             <label>Data <span style={{ color: "var(--danger)" }}>*</span></label>
-            <input type="date" className="form-input" value={date} onChange={(e) => setDate(e.target.value)} required />
+            <DatePicker
+              selected={date}
+              onChange={(d) => setDate(d)}
+              dateFormat="dd/MM/yyyy"
+              locale="pt"
+              className="form-input"
+              placeholderText="DD/MM/AAAA"
+              maxDate={new Date()}
+              showYearDropdown
+              dropdownMode="select"
+              required
+            />
           </div>
 
           <div className="form-group">
