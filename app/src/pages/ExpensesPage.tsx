@@ -5,7 +5,7 @@ import {
 } from "lucide-react";
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis,
-  CartesianGrid, Tooltip, Legend
+  CartesianGrid, Tooltip, Legend, LineChart, Line, ReferenceLine
 } from "recharts";
 import { expenseService, ExpenseAnalytics } from "../services/expenseService";
 import { Expense } from "../db";
@@ -412,99 +412,100 @@ export function ExpensesPage() {
         analyticsLoading || !analytics ? (
           <div style={{ padding: "48px", textAlign: "center", color: "var(--text-muted)" }}>A carregar...</div>
         ) : (
-          <div className="page-stack">
-            {/* Row 1 — Expense KPIs */}
-            <div className="grid-stats">
-              <StatCard
-                title="Despesa este mês"
-                value={fmt(analytics.totalThisMonth)}
-                icon={<TrendingDown size={22} />}
-                color="#dc2626"
-              />
-              <StatCard
-                title="Despesa mês anterior"
-                value={fmt(analytics.totalLastMonth)}
-                icon={<Calendar size={22} />}
-                color="#f59e0b"
-              />
-              <StatCard
-                title="Despesa Média mensal"
-                value={fmt(analytics.averagePerMonth)}
-                icon={<BarChart3 size={22} />}
-                color="#6366f1"
-              />
-              <StatCard
-                title="Nº despesas (mês)"
-                value={String(analytics.countThisMonth)}
-                icon={<Hash size={22} />}
-                color="#10b981"
-              />
-            </div>
+          (() => {
+            const trendData = analytics.monthlyTrend.map((item) => ({
+              ...item,
+              lucro: item.receita - item.despesas,
+            }));
 
-            {/* Row 2 — Receita vs Despesas KPIs */}
-            <div className="grid-stats">
-              <StatCard
-                title="Resultado líquido"
-                value={fmt(Math.abs(analytics.netThisMonth))}
-                sub={analytics.netThisMonth >= 0 ? "▲ Lucro" : "▼ Prejuízo"}
-                icon={analytics.netThisMonth >= 0 ? <TrendingUp size={22} /> : <TrendingDown size={22} />}
-                color={analytics.netThisMonth >= 0 ? "#10b981" : "#dc2626"}
-              />
-              <StatCard
-                title="Resultado líquido (mês ant.)"
-                value={fmt(Math.abs(analytics.netLastMonth))}
-                sub={analytics.netLastMonth >= 0 ? "▲ Lucro" : "▼ Prejuízo"}
-                icon={analytics.netLastMonth >= 0 ? <TrendingUp size={22} /> : <TrendingDown size={22} />}
-                color={analytics.netLastMonth >= 0 ? "#10b981" : "#dc2626"}
-              />
-              <StatCard
-                title="Rácio de despesas (mês)"
-                value={
-                  analytics.expenseRatioThisMonth !== null
-                    ? `${analytics.expenseRatioThisMonth.toFixed(1)} %`
-                    : "N/A"
-                }
-                sub="do total de receita"
-                icon={<Percent size={22} />}
-                color="#8b5cf6"
-              />
-              <StatCard
-                title="Receita este mês"
-                value={fmt(analytics.revenueThisMonth)}
-                icon={<TrendingUp size={22} />}
-                color="#0ea5e9"
-              />
-            </div>
+            return (
+              <div className="page-stack">
+                {/* Expense KPIs */}
+                <div className="grid-stats">
+                  <StatCard
+                    title="Despesa este mês"
+                    value={fmt(analytics.totalThisMonth)}
+                    icon={<TrendingDown size={22} />}
+                    color="#dc2626"
+                  />
+                  <StatCard
+                    title="Nº total de despesas"
+                    value={String(analytics.totalCount)}
+                    icon={<Hash size={22} />}
+                    color="#10b981"
+                  />
+                  <StatCard
+                    title="Despesa Média mensal"
+                    value={fmt(analytics.averagePerMonth)}
+                    icon={<BarChart3 size={22} />}
+                    color="#6366f1"
+                  />
+                  <StatCard
+                    title="Resultado líquido"
+                    value={fmt(Math.abs(analytics.netThisMonth))}
+                    sub={analytics.netThisMonth >= 0 ? "▲ Lucro" : "▼ Prejuízo"}
+                    icon={analytics.netThisMonth >= 0 ? <TrendingUp size={22} /> : <TrendingDown size={22} />}
+                    color={analytics.netThisMonth >= 0 ? "#10b981" : "#dc2626"}
+                  />
+                </div>
 
-            {/* Grouped bar chart */}
-            <div className="card" style={{ padding: "24px" }}>
-              <h3 style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "24px" }}>
-                <BarChart3 size={20} color="#6366f1" /> Receita vs Despesas — últimos 12 meses
-              </h3>
-              <div style={{ height: "320px", width: "100%" }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={analytics.monthlyTrend} margin={{ left: 10 }} barGap={4} barCategoryGap="30%">
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 10 }} dy={8} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 11 }} tickFormatter={(v) => `${v}€`} />
-                    <Tooltip
-                      formatter={(v: number, name: string) => [
-                        `${v.toFixed(2)} €`,
-                        name === "receita" ? "Receita" : "Despesas",
-                      ]}
-                      contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 8px 16px rgba(0,0,0,0.08)" }}
-                    />
-                    <Legend
-                      formatter={(value) => value === "receita" ? "Receita" : "Despesas"}
-                      wrapperStyle={{ fontSize: "0.85rem", paddingTop: "12px" }}
-                    />
-                    <Bar dataKey="receita" fill="#0ea5e9" radius={[4, 4, 0, 0]} barSize={16} />
-                    <Bar dataKey="despesas" fill="#dc2626" radius={[4, 4, 0, 0]} barSize={16} />
-                  </BarChart>
-                </ResponsiveContainer>
+                {/* Chart 1: Receita vs Despesas */}
+                <div className="card" style={{ padding: "24px" }}>
+                  <h3 style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "24px" }}>
+                    <BarChart3 size={20} color="#6366f1" /> Receita vs Despesas — últimos 12 meses
+                  </h3>
+                  <div style={{ height: "320px", width: "100%" }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={analytics.monthlyTrend} margin={{ left: 10 }} barGap={4} barCategoryGap="30%">
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                        <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 10 }} dy={8} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 11 }} tickFormatter={(v) => `${v}€`} />
+                        <Tooltip
+                          formatter={(v: number, name: string) => [
+                            `${v.toFixed(2)} €`,
+                            name === "receita" ? "Receita" : "Despesas",
+                          ]}
+                          contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 8px 16px rgba(0,0,0,0.08)" }}
+                        />
+                        <Legend
+                          formatter={(value) => value === "receita" ? "Receita" : "Despesas"}
+                          wrapperStyle={{ fontSize: "0.85rem", paddingTop: "12px" }}
+                        />
+                        <Bar dataKey="receita" fill="#0ea5e9" radius={[4, 4, 0, 0]} barSize={16} />
+                        <Bar dataKey="despesas" fill="#dc2626" radius={[4, 4, 0, 0]} barSize={16} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* Chart 2: Resultado Líquido Mensal Line Chart */}
+                <div className="card" style={{ padding: "24px" }}>
+                  <h3 style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "24px" }}>
+                    <TrendingUp size={20} color="#10b981" /> Resultado Líquido Mensal — últimos 12 meses
+                  </h3>
+                  <div style={{ height: "320px", width: "100%" }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={trendData} margin={{ left: 10, right: 10 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                        <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 10 }} dy={8} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 11 }} tickFormatter={(v) => `${v}€`} />
+                        <Tooltip
+                          formatter={(v: number) => [`${v.toFixed(2)} €`, "Resultado Líquido"]}
+                          contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 8px 16px rgba(0,0,0,0.08)" }}
+                        />
+                        <ReferenceLine y={0} stroke="#94a3b8" strokeDasharray="3 3" />
+                        <Legend
+                          formatter={() => "Lucro / Prejuízo"}
+                          wrapperStyle={{ fontSize: "0.85rem", paddingTop: "12px" }}
+                        />
+                        <Line type="monotone" dataKey="lucro" stroke="#10b981" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
+            );
+          })()
         )
       )}
 

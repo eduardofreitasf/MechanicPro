@@ -5,12 +5,14 @@ export interface ExpenseAnalytics {
   totalLastMonth: number;
   averagePerMonth: number;
   countThisMonth: number;
+  totalCount: number;
   revenueThisMonth: number;
   revenueLastMonth: number;
   netThisMonth: number;
   netLastMonth: number;
   expenseRatioThisMonth: number | null; // null when no revenue
   monthlyTrend: { month: string; despesas: number; receita: number }[];
+  topExpenses: Expense[];
 }
 
 function currentMonthRange(): { from: string; to: string } {
@@ -118,6 +120,9 @@ export const expenseService = {
         GROUP BY strftime('%Y-%m', date)
       )
     `);
+    const [totalCountRow] = await db.select<any[]>(
+      "SELECT COUNT(*) as cnt FROM expenses WHERE deleted_at IS NULL"
+    );
 
     // ── Revenue (from service_orders) ─────────────────────────────────────────
     // service_orders.created_at is stored as ISO string; strftime comparison works fine
@@ -165,17 +170,24 @@ export const expenseService = {
     const lastExp = lastMonthExpRow.total;
     const lastRev = lastMonthRevRow.total;
 
+    // ── Top 5 Expenses ────────────────────────────────────────────────────────
+    const topExpensesRows = await db.select<Expense[]>(
+      "SELECT * FROM expenses WHERE deleted_at IS NULL ORDER BY cost DESC LIMIT 5"
+    );
+
     return {
       totalThisMonth: totalExp,
       totalLastMonth: lastExp,
       averagePerMonth: avgRow.avg_total,
       countThisMonth: thisMonthExpRow.cnt,
+      totalCount: totalCountRow.cnt,
       revenueThisMonth: totalRev,
       revenueLastMonth: lastRev,
       netThisMonth: totalRev - totalExp,
       netLastMonth: lastRev - lastExp,
       expenseRatioThisMonth: totalRev > 0 ? (totalExp / totalRev) * 100 : null,
       monthlyTrend: last12,
+      topExpenses: topExpensesRows,
     };
   },
 };
