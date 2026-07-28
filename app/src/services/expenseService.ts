@@ -1,5 +1,15 @@
 import { getDb, Expense } from "../db";
 
+export interface MonthAnalytics {
+  totalExpenses: number;
+  totalRevenue: number;
+  netResult: number;
+  expenseCount: number;
+  dailyBreakdown: { day: number; label: string; total: number }[];
+  expenses: Expense[];
+  topExpense: Expense | null;
+}
+
 export interface ExpenseAnalytics {
   totalThisMonth: number;
   totalLastMonth: number;
@@ -188,6 +198,63 @@ export const expenseService = {
       expenseRatioThisMonth: totalRev > 0 ? (totalExp / totalRev) * 100 : null,
       monthlyTrend: last12,
       topExpenses: topExpensesRows,
+    };
+  },
+
+  async getMonthAnalytics(year: number, month: number): Promise<MonthAnalytics> {
+    const db = await getDb();
+    const mm = String(month).padStart(2, "0");
+    const from = `${year}-${mm}-01`;
+    // last day: use day 31 trick (SQLite date comparison)
+    const to = `${year}-${mm}-31`;
+
+    // Revenue from service_orders in this month
+    const [revRow] = await db.select<any[]>(
+      "SELECT COALESCE(SUM(total_price), 0) as total FROM service_orders WHERE deleted_at IS NULL AND created_at >= ? AND created_at <= ?",
+      [from, to + "T23:59:59"]
+    );
+
+    // Expense aggregates
+    const [expRow] = await db.select<any[]>(
+      "SELECT COALESCE(SUM(cost), 0) as total, COUNT(*) as cnt FROM expenses WHERE deleted_at IS NULL AND date >= ? AND date <= ?",
+      [from, to]
+    );
+
+    // All expenses this month
+    const expenses = await db.select<Expense[]>(
+      "SELECT * FROM expenses WHERE deleted_at IS NULL AND date >= ? AND date <= ? ORDER BY date ASC",
+      [from, to]
+    );
+
+    // Top expense
+    const topRow = await db.select<Expense[]>(
+      "SELECT * FROM expenses WHERE deleted_at IS NULL AND date >= ? AND date <= ? ORDER BY cost DESC LIMIT 1",
+      [from, to]
+    );
+
+    // Build daily breakdown — every day of the month
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const dailyTotals = new Map<number, number>();
+    for (const e of expenses) {
+      const d = new Date(e.date).getUTCDate();
+      dailyTotals.set(d, (dailyTotals.get(d) ?? 0) + e.cost);
+    }
+    const dailyBreakdown = Array.from({ length: daysInMonth }, (_, i) => {
+      const day = i + 1;
+      return { day, label: String(day), total: dailyTotals.get(day) ?? 0 };
+    });
+
+    const totalExpenses = expRow.total;
+    const totalRevenue = revRow.total;
+
+    return {
+      totalExpenses,
+      totalRevenue,
+      netResult: totalRevenue - totalExpenses,
+      expenseCount: expRow.cnt,
+      dailyBreakdown,
+      expenses,
+      topExpense: topRow[0] ?? null,
     };
   },
 };

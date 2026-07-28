@@ -1,19 +1,25 @@
 import { useEffect, useState } from "react";
 import {
   Search, Plus, Trash2, Receipt, BarChart3, List,
-  ArrowUpDown, Calendar, TrendingDown, TrendingUp, Hash, AlertCircle, SlidersHorizontal, Percent
+  ArrowUpDown, Calendar, TrendingDown, TrendingUp, Hash, AlertCircle,
+  SlidersHorizontal, ChevronLeft, ChevronRight, Star, CalendarDays,
 } from "lucide-react";
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis,
-  CartesianGrid, Tooltip, Legend, LineChart, Line, ReferenceLine
+  CartesianGrid, Tooltip, Legend, LineChart, Line, ReferenceLine, Cell,
 } from "recharts";
-import { expenseService, ExpenseAnalytics } from "../services/expenseService";
+import { expenseService, ExpenseAnalytics, MonthAnalytics } from "../services/expenseService";
 import { Expense } from "../db";
 import { ConfirmModal } from "../components/ConfirmModal";
 
-type Tab = "list" | "analytics";
+type Tab = "list" | "analytics" | "monthly";
 type SortBy = "date" | "cost";
 type SortOrder = "ASC" | "DESC";
+
+const PT_MONTHS = [
+  "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+  "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
+];
 
 // ─── Add Expense Modal ───────────────────────────────────────────────────────
 
@@ -141,7 +147,7 @@ function AddExpenseModal({ isOpen, onClose, onSuccess }: AddExpenseModalProps) {
   );
 }
 
-// ─── Stat Card (reused from Dashboard pattern) ───────────────────────────────
+// ─── Stat Card ────────────────────────────────────────────────────────────────
 
 function StatCard({ title, value, icon, color, sub }: {
   title: string;
@@ -168,7 +174,110 @@ function StatCard({ title, value, icon, color, sub }: {
   );
 }
 
-// ─── Main Page ───────────────────────────────────────────────────────────────
+// ─── Month Picker ─────────────────────────────────────────────────────────────
+
+interface MonthPickerProps {
+  year: number;
+  month: number; // 1-based
+  onChange: (year: number, month: number) => void;
+}
+
+function MonthPicker({ year, month, onChange }: MonthPickerProps) {
+  const now = new Date();
+  const isCurrentMonth = year === now.getFullYear() && month === now.getMonth() + 1;
+
+  const go = (delta: number) => {
+    let m = month + delta;
+    let y = year;
+    if (m > 12) { m = 1; y++; }
+    if (m < 1) { m = 12; y--; }
+    // Don't allow future months
+    if (y > now.getFullYear() || (y === now.getFullYear() && m > now.getMonth() + 1)) return;
+    onChange(y, m);
+  };
+
+  // Build list of all months up to current
+  const options: { label: string; y: number; m: number }[] = [];
+  const start = new Date(now.getFullYear() - 3, now.getMonth(), 1);
+  const end = new Date(now.getFullYear(), now.getMonth(), 1);
+  for (let d = new Date(start); d <= end; d.setMonth(d.getMonth() + 1)) {
+    options.push({ label: `${PT_MONTHS[d.getMonth()]} ${d.getFullYear()}`, y: d.getFullYear(), m: d.getMonth() + 1 });
+  }
+  options.reverse(); // most recent first
+
+  return (
+    <div style={{
+      display: "flex", alignItems: "center", gap: "12px",
+      background: "var(--surface)", border: "1px solid var(--border)",
+      borderRadius: "14px", padding: "10px 16px", width: "fit-content"
+    }}>
+      <button
+        onClick={() => go(-1)}
+        style={{
+          background: "none", border: "none", cursor: "pointer",
+          color: "var(--text-muted)", display: "flex", alignItems: "center",
+          padding: "4px", borderRadius: "6px", transition: "all 0.15s",
+        }}
+        title="Mês anterior"
+      >
+        <ChevronLeft size={20} />
+      </button>
+
+      <select
+        value={`${year}-${String(month).padStart(2, "0")}`}
+        onChange={(e) => {
+          const [y, m] = e.target.value.split("-").map(Number);
+          onChange(y, m);
+        }}
+        style={{
+          background: "none", border: "none", cursor: "pointer",
+          fontSize: "1rem", fontWeight: 700, color: "var(--text)",
+          outline: "none", textAlign: "center", minWidth: "160px",
+          fontFamily: "inherit",
+        }}
+      >
+        {options.map((o) => (
+          <option key={`${o.y}-${o.m}`} value={`${o.y}-${String(o.m).padStart(2, "0")}`}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+
+      <button
+        onClick={() => go(+1)}
+        disabled={isCurrentMonth}
+        style={{
+          background: "none", border: "none",
+          cursor: isCurrentMonth ? "not-allowed" : "pointer",
+          color: isCurrentMonth ? "var(--border)" : "var(--text-muted)",
+          display: "flex", alignItems: "center",
+          padding: "4px", borderRadius: "6px", transition: "all 0.15s",
+        }}
+        title="Mês seguinte"
+      >
+        <ChevronRight size={20} />
+      </button>
+    </div>
+  );
+}
+
+// ─── Custom Tooltip for day chart ─────────────────────────────────────────────
+
+function DayTooltip({ active, payload, label }: any) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div style={{
+      background: "var(--surface)", border: "1px solid var(--border)",
+      borderRadius: "10px", padding: "10px 14px",
+      boxShadow: "0 8px 24px rgba(0,0,0,0.1)", fontSize: "0.875rem"
+    }}>
+      <div style={{ fontWeight: 700, marginBottom: "4px" }}>Dia {label}</div>
+      <div style={{ color: "#dc2626", fontWeight: 600 }}>{Number(payload[0].value).toFixed(2)} €</div>
+    </div>
+  );
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
 
 export function ExpensesPage() {
   const [activeTab, setActiveTab] = useState<Tab>("list");
@@ -192,6 +301,12 @@ export function ExpensesPage() {
   const [analytics, setAnalytics] = useState<ExpenseAnalytics | null>(null);
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
 
+  // Monthly tab state
+  const now = new Date();
+  const [monthYear, setMonthYear] = useState({ year: now.getFullYear(), month: now.getMonth() + 1 });
+  const [monthData, setMonthData] = useState<MonthAnalytics | null>(null);
+  const [monthLoading, setMonthLoading] = useState(false);
+
   const fetchExpenses = async () => {
     const result = await expenseService.getExpenses({
       search,
@@ -212,6 +327,13 @@ export function ExpensesPage() {
     setAnalyticsLoading(false);
   };
 
+  const fetchMonthData = async (year: number, month: number) => {
+    setMonthLoading(true);
+    const result = await expenseService.getMonthAnalytics(year, month);
+    setMonthData(result);
+    setMonthLoading(false);
+  };
+
   useEffect(() => {
     fetchExpenses();
   }, [search, sortBy, sortOrder, dateFrom, dateTo, costMin, costMax]);
@@ -220,15 +342,27 @@ export function ExpensesPage() {
     if (activeTab === "analytics") fetchAnalytics();
   }, [activeTab]);
 
+  useEffect(() => {
+    if (activeTab === "monthly") fetchMonthData(monthYear.year, monthYear.month);
+  }, [activeTab, monthYear]);
+
   const handleDelete = async () => {
     if (deleteId === null) return;
     await expenseService.deleteExpense(deleteId);
     setDeleteId(null);
     fetchExpenses();
     if (activeTab === "analytics") fetchAnalytics();
+    if (activeTab === "monthly") fetchMonthData(monthYear.year, monthYear.month);
   };
 
   const fmt = (v: number) => v.toFixed(2) + " €";
+
+  // Tab definitions
+  const tabs: { id: Tab; icon: React.ReactNode; label: string }[] = [
+    { id: "list", icon: <List size={16} />, label: "Lista" },
+    { id: "analytics", icon: <BarChart3 size={16} />, label: "Análise" },
+    { id: "monthly", icon: <CalendarDays size={16} />, label: "Mensal" },
+  ];
 
   return (
     <>
@@ -247,16 +381,16 @@ export function ExpensesPage() {
 
       {/* ── Tabs ── */}
       <div style={{ display: "flex", gap: "4px", marginBottom: "24px", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "12px", padding: "4px", width: "fit-content" }}>
-        {([["list", <List size={16} />, "Lista"], ["analytics", <BarChart3 size={16} />, "Análise"]] as const).map(([tab, icon, label]) => (
+        {tabs.map(({ id, icon, label }) => (
           <button
-            key={tab}
-            onClick={() => setActiveTab(tab as Tab)}
+            key={id}
+            onClick={() => setActiveTab(id)}
             style={{
               display: "flex", alignItems: "center", gap: "8px",
               padding: "8px 20px", borderRadius: "8px", border: "none", cursor: "pointer",
               fontWeight: 600, fontSize: "0.9rem", transition: "all 0.15s",
-              background: activeTab === tab ? "var(--primary)" : "transparent",
-              color: activeTab === tab ? "#fff" : "var(--text-muted)",
+              background: activeTab === id ? "var(--primary)" : "transparent",
+              color: activeTab === id ? "#fff" : "var(--text-muted)",
             }}
           >
             {icon} {label}
@@ -509,11 +643,208 @@ export function ExpensesPage() {
         )
       )}
 
+      {/* ══════════════════ MONTHLY TAB ══════════════════ */}
+      {activeTab === "monthly" && (
+        <div className="page-stack">
+          {/* Month Picker row */}
+          <div style={{ display: "flex", alignItems: "center", gap: "16px", flexWrap: "wrap" }}>
+            <MonthPicker
+              year={monthYear.year}
+              month={monthYear.month}
+              onChange={(y, m) => setMonthYear({ year: y, month: m })}
+            />
+          </div>
+
+          {monthLoading || !monthData ? (
+            <div style={{ padding: "48px", textAlign: "center", color: "var(--text-muted)" }}>A carregar...</div>
+          ) : (
+            <>
+              {/* KPI Cards */}
+              <div className="grid-stats">
+                <StatCard
+                  title="Total Despesas"
+                  value={fmt(monthData.totalExpenses)}
+                  icon={<TrendingDown size={22} />}
+                  color="#dc2626"
+                  sub={`${monthData.expenseCount} entr${monthData.expenseCount === 1 ? "ada" : "adas"}`}
+                />
+                <StatCard
+                  title="Total Receita"
+                  value={fmt(monthData.totalRevenue)}
+                  icon={<TrendingUp size={22} />}
+                  color="#10b981"
+                />
+                <StatCard
+                  title="Resultado Líquido"
+                  value={fmt(Math.abs(monthData.netResult))}
+                  sub={monthData.netResult >= 0 ? "▲ Lucro" : "▼ Prejuízo"}
+                  icon={monthData.netResult >= 0 ? <TrendingUp size={22} /> : <TrendingDown size={22} />}
+                  color={monthData.netResult >= 0 ? "#10b981" : "#dc2626"}
+                />
+                <StatCard
+                  title="Nº de Despesas"
+                  value={String(monthData.expenseCount)}
+                  icon={<Hash size={22} />}
+                  color="#6366f1"
+                />
+              </div>
+
+              {/* Top Expense callout */}
+              {monthData.topExpense && (
+                <div className="card" style={{
+                  padding: "20px 24px",
+                  background: "linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)",
+                  border: "1px solid #fed7aa",
+                  display: "flex", alignItems: "center", gap: "16px"
+                }}>
+                  <div style={{
+                    width: "44px", height: "44px", borderRadius: "12px",
+                    background: "#f97316", display: "flex", alignItems: "center",
+                    justifyContent: "center", flexShrink: 0,
+                  }}>
+                    <Star size={20} color="#fff" />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "#9a3412", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>
+                      Maior Despesa do Mês
+                    </div>
+                    <div style={{ fontWeight: 700, fontSize: "1rem", color: "#431407", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {monthData.topExpense.description || "Sem descrição"}
+                    </div>
+                    {monthData.topExpense.receipt_no && (
+                      <div style={{ fontSize: "0.8rem", color: "#9a3412", fontFamily: "monospace", marginTop: "2px" }}>
+                        {monthData.topExpense.receipt_no}
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ fontWeight: 900, fontSize: "1.4rem", color: "#c2410c", flexShrink: 0 }}>
+                    {monthData.topExpense.cost.toFixed(2)} €
+                  </div>
+                </div>
+              )}
+
+              {/* Day-by-day Bar Chart */}
+              <div className="card" style={{ padding: "24px" }}>
+                <h3 style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "24px" }}>
+                  <CalendarDays size={20} color="#6366f1" />
+                  Despesas por Dia — {PT_MONTHS[monthYear.month - 1]} {monthYear.year}
+                </h3>
+                {monthData.totalExpenses === 0 ? (
+                  <div style={{ textAlign: "center", padding: "40px 0", color: "var(--text-muted)" }}>
+                    <Receipt size={36} style={{ opacity: 0.2, marginBottom: "12px" }} />
+                    <p>Sem despesas registadas neste mês.</p>
+                  </div>
+                ) : (
+                  <div style={{ height: "280px", width: "100%" }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={monthData.dailyBreakdown} margin={{ left: 10 }} barCategoryGap="20%">
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                        <XAxis
+                          dataKey="label"
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fill: "#64748b", fontSize: 10 }}
+                          dy={8}
+                          interval={1}
+                        />
+                        <YAxis
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fill: "#64748b", fontSize: 11 }}
+                          tickFormatter={(v) => `${v}€`}
+                        />
+                        <Tooltip content={<DayTooltip />} />
+                        <Bar dataKey="total" radius={[4, 4, 0, 0]}>
+                          {monthData.dailyBreakdown.map((entry) => (
+                            <Cell
+                              key={`cell-${entry.day}`}
+                              fill={entry.total > 0 ? "#dc2626" : "#f1f5f9"}
+                            />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+              </div>
+
+              {/* Expense list for the month */}
+              <div className="card">
+                <div style={{ padding: "20px 24px 16px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: "10px" }}>
+                  <Receipt size={18} color="var(--primary)" />
+                  <h3 style={{ margin: 0, fontSize: "1rem" }}>
+                    Despesas de {PT_MONTHS[monthYear.month - 1]} {monthYear.year}
+                  </h3>
+                  <span style={{
+                    marginLeft: "auto", background: "var(--primary)", color: "#fff",
+                    borderRadius: "999px", fontSize: "0.75rem", fontWeight: 700,
+                    padding: "2px 10px"
+                  }}>
+                    {monthData.expenseCount}
+                  </span>
+                </div>
+
+                {monthData.expenses.length === 0 ? (
+                  <div className="empty-state">
+                    <Receipt size={48} style={{ opacity: 0.2, marginBottom: "16px" }} />
+                    <p>Nenhuma despesa registada neste mês.</p>
+                  </div>
+                ) : (
+                  <div className="table-scroll">
+                    <table className="table">
+                      <thead>
+                        <tr>
+                          <th>Data</th>
+                          <th>Descrição</th>
+                          <th>Nº Recibo</th>
+                          <th style={{ textAlign: "right" }}>Custo</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {monthData.expenses.map((exp) => (
+                          <tr key={exp.id}>
+                            <td style={{ whiteSpace: "nowrap" }}>{new Date(exp.date).toLocaleDateString("pt-PT")}</td>
+                            <td style={{ color: exp.description ? "var(--text)" : "var(--text-muted)" }}>
+                              {exp.description || "—"}
+                            </td>
+                            <td style={{ color: exp.receipt_no ? "var(--text)" : "var(--text-muted)", fontFamily: "monospace", fontSize: "0.9rem" }}>
+                              {exp.receipt_no || "—"}
+                            </td>
+                            <td style={{ textAlign: "right", fontWeight: 700, color: "#dc2626" }}>
+                              {exp.cost.toFixed(2)} €
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    {/* Total row */}
+                    <div style={{
+                      display: "flex", justifyContent: "flex-end", alignItems: "center",
+                      padding: "12px 24px", borderTop: "2px solid var(--border)",
+                      gap: "12px"
+                    }}>
+                      <span style={{ fontWeight: 600, color: "var(--text-muted)", fontSize: "0.85rem" }}>TOTAL</span>
+                      <span style={{ fontWeight: 900, fontSize: "1.1rem", color: "#dc2626" }}>
+                        {monthData.totalExpenses.toFixed(2)} €
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
       {/* Modals */}
       <AddExpenseModal
         isOpen={isAddOpen}
         onClose={() => setIsAddOpen(false)}
-        onSuccess={() => { fetchExpenses(); if (activeTab === "analytics") fetchAnalytics(); }}
+        onSuccess={() => {
+          fetchExpenses();
+          if (activeTab === "analytics") fetchAnalytics();
+          if (activeTab === "monthly") fetchMonthData(monthYear.year, monthYear.month);
+        }}
       />
       <ConfirmModal
         isOpen={deleteId !== null}
