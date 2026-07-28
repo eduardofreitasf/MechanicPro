@@ -5,7 +5,7 @@ export interface MonthAnalytics {
   totalRevenue: number;
   netResult: number;
   expenseCount: number;
-  dailyBreakdown: { day: number; label: string; total: number }[];
+  dailyBreakdown: { day: number; label: string; total: number; revenue: number }[];
   expenses: Expense[];
   topExpense: Expense | null;
 }
@@ -234,14 +234,35 @@ export const expenseService = {
 
     // Build daily breakdown — every day of the month
     const daysInMonth = new Date(year, month, 0).getDate();
-    const dailyTotals = new Map<number, number>();
+    const dailyExpenses = new Map<number, number>();
     for (const e of expenses) {
       const d = new Date(e.date).getUTCDate();
-      dailyTotals.set(d, (dailyTotals.get(d) ?? 0) + e.cost);
+      dailyExpenses.set(d, (dailyExpenses.get(d) ?? 0) + e.cost);
     }
+
+    // Daily revenue from service_orders (created_at stored as date string)
+    const revRows = await db.select<any[]>(
+      `SELECT CAST(strftime('%d', created_at) AS INTEGER) as day,
+              COALESCE(SUM(total_price), 0) as rev
+       FROM service_orders
+       WHERE deleted_at IS NULL
+         AND created_at >= ? AND created_at <= ?
+       GROUP BY day`,
+      [from, to + "T23:59:59"]
+    );
+    const dailyRevenue = new Map<number, number>();
+    for (const r of revRows) {
+      dailyRevenue.set(r.day, r.rev);
+    }
+
     const dailyBreakdown = Array.from({ length: daysInMonth }, (_, i) => {
       const day = i + 1;
-      return { day, label: String(day), total: dailyTotals.get(day) ?? 0 };
+      return {
+        day,
+        label: String(day),
+        total: dailyExpenses.get(day) ?? 0,
+        revenue: dailyRevenue.get(day) ?? 0,
+      };
     });
 
     const totalExpenses = expRow.total;

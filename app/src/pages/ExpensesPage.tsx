@@ -281,14 +281,25 @@ function MonthPicker({ year, month, onChange }: MonthPickerProps) {
 
 function DayTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
+  const expenses = payload.find((p: any) => p.dataKey === "total");
+  const revenue = payload.find((p: any) => p.dataKey === "revenue");
   return (
     <div style={{
       background: "var(--surface)", border: "1px solid var(--border)",
       borderRadius: "10px", padding: "10px 14px",
       boxShadow: "0 8px 24px rgba(0,0,0,0.1)", fontSize: "0.875rem"
     }}>
-      <div style={{ fontWeight: 700, marginBottom: "4px" }}>Dia {label}</div>
-      <div style={{ color: "#dc2626", fontWeight: 600 }}>{Number(payload[0].value).toFixed(2)} €</div>
+      <div style={{ fontWeight: 700, marginBottom: "6px" }}>Dia {label}</div>
+      {revenue && (
+        <div style={{ color: "#10b981", fontWeight: 600, marginBottom: "2px" }}>
+          Receita: {Number(revenue.value).toFixed(2)} €
+        </div>
+      )}
+      {expenses && (
+        <div style={{ color: "#dc2626", fontWeight: 600 }}>
+          Despesas: {Number(expenses.value).toFixed(2)} €
+        </div>
+      )}
     </div>
   );
 }
@@ -743,17 +754,17 @@ export function ExpensesPage() {
               <div className="card" style={{ padding: "24px" }}>
                 <h3 style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "24px" }}>
                   <CalendarDays size={20} color="#6366f1" />
-                  Despesas por Dia — {PT_MONTHS[monthYear.month - 1]} {monthYear.year}
+                  Receita vs Despesas por Dia — {PT_MONTHS[monthYear.month - 1]} {monthYear.year}
                 </h3>
-                {monthData.totalExpenses === 0 ? (
+                {monthData.totalExpenses === 0 && monthData.totalRevenue === 0 ? (
                   <div style={{ textAlign: "center", padding: "40px 0", color: "var(--text-muted)" }}>
                     <Receipt size={36} style={{ opacity: 0.2, marginBottom: "12px" }} />
-                    <p>Sem despesas registadas neste mês.</p>
+                    <p>Sem registos neste mês.</p>
                   </div>
                 ) : (
                   <div style={{ height: "280px", width: "100%" }}>
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={monthData.dailyBreakdown} margin={{ left: 10 }} barCategoryGap="20%">
+                      <BarChart data={monthData.dailyBreakdown} margin={{ left: 10 }} barCategoryGap="20%" barGap={2}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                         <XAxis
                           dataKey="label"
@@ -770,14 +781,12 @@ export function ExpensesPage() {
                           tickFormatter={(v) => `${v}€`}
                         />
                         <Tooltip content={<DayTooltip />} />
-                        <Bar dataKey="total" radius={[4, 4, 0, 0]}>
-                          {monthData.dailyBreakdown.map((entry) => (
-                            <Cell
-                              key={`cell-${entry.day}`}
-                              fill={entry.total > 0 ? "#dc2626" : "#f1f5f9"}
-                            />
-                          ))}
-                        </Bar>
+                        <Legend
+                          formatter={(value) => value === "revenue" ? "Receita" : "Despesas"}
+                          wrapperStyle={{ fontSize: "0.85rem", paddingTop: "12px" }}
+                        />
+                        <Bar dataKey="revenue" fill="#10b981" radius={[4, 4, 0, 0]} barSize={8} />
+                        <Bar dataKey="total" fill="#dc2626" radius={[4, 4, 0, 0]} barSize={8} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
