@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "seed": "npm install --no-save better-sqlite3 && node scripts/seed.js",
+    "seed:reset": "npm install --no-save better-sqlite3 && node scripts/reset.js && node scripts/seed.js"
   },
   "dependencies": {
     "@tauri-apps/api": "^2",
