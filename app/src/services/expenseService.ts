@@ -11,18 +11,12 @@ export interface MonthAnalytics {
 }
 
 export interface ExpenseAnalytics {
-  totalThisMonth: number;
-  totalLastMonth: number;
-  averagePerMonth: number;
-  countThisMonth: number;
-  totalCount: number;
-  revenueThisMonth: number;
-  revenueLastMonth: number;
-  netThisMonth: number;
-  netLastMonth: number;
-  expenseRatioThisMonth: number | null; // null when no revenue
+  totalExpenses: number;      // total expenses for the year
+  totalRevenue: number;       // total revenue for the year
+  netResult: number;          // revenue - expenses
+  expenseCount: number;       // number of expense entries
+  averagePerMonth: number;    // avg monthly expenses (months with data only)
   monthlyTrend: { month: string; despesas: number; receita: number }[];
-  topExpenses: Expense[];
 }
 
 function currentMonthRange(): { from: string; to: string } {
@@ -108,96 +102,68 @@ export const expenseService = {
     );
   },
 
-  async getAnalytics(): Promise<ExpenseAnalytics> {
+  async getAnalytics(year: number): Promise<ExpenseAnalytics> {
     const db = await getDb();
-    const { from: cmFrom, to: cmTo } = currentMonthRange();
-    const { from: lmFrom, to: lmTo } = lastMonthRange();
+    const yearStr = String(year);
+    const from = `${yearStr}-01-01`;
+    const to   = `${yearStr}-12-31`;
 
-    // ── Expenses ──────────────────────────────────────────────────────────────
-    const [thisMonthExpRow] = await db.select<any[]>(
+    // ── Annual expense totals ─────────────────────────────────────────────────
+    const [expRow] = await db.select<any[]>(
       "SELECT COALESCE(SUM(cost), 0) as total, COUNT(*) as cnt FROM expenses WHERE deleted_at IS NULL AND date >= ? AND date <= ?",
-      [cmFrom, cmTo]
-    );
-    const [lastMonthExpRow] = await db.select<any[]>(
-      "SELECT COALESCE(SUM(cost), 0) as total FROM expenses WHERE deleted_at IS NULL AND date >= ? AND date <= ?",
-      [lmFrom, lmTo]
-    );
-    const [avgRow] = await db.select<any[]>(`
-      SELECT COALESCE(AVG(monthly_total), 0) as avg_total FROM (
-        SELECT SUM(cost) as monthly_total
-        FROM expenses
-        WHERE deleted_at IS NULL
-        GROUP BY strftime('%Y-%m', date)
-      )
-    `);
-    const [totalCountRow] = await db.select<any[]>(
-      "SELECT COUNT(*) as cnt FROM expenses WHERE deleted_at IS NULL"
+      [from, to]
     );
 
-    // ── Revenue (from service_orders) ─────────────────────────────────────────
-    // service_orders.created_at is stored as ISO string; strftime comparison works fine
-    const [thisMonthRevRow] = await db.select<any[]>(
+    // ── Annual revenue total ──────────────────────────────────────────────────
+    const [revRow] = await db.select<any[]>(
       "SELECT COALESCE(SUM(total_price), 0) as total FROM service_orders WHERE deleted_at IS NULL AND created_at >= ? AND created_at <= ?",
-      [cmFrom, cmTo + "T23:59:59"]
-    );
-    const [lastMonthRevRow] = await db.select<any[]>(
-      "SELECT COALESCE(SUM(total_price), 0) as total FROM service_orders WHERE deleted_at IS NULL AND created_at >= ? AND created_at <= ?",
-      [lmFrom, lmTo + "T23:59:59"]
+      [from, to + "T23:59:59"]
     );
 
-    // ── Monthly trend (last 12 months, expenses + revenue) ───────────────────
-    const expTrendRows = await db.select<any[]>(`
-      SELECT strftime('%Y-%m', date) as month, SUM(cost) as total
-      FROM expenses
-      WHERE deleted_at IS NULL
-      GROUP BY month
-    `);
-    const revTrendRows = await db.select<any[]>(`
-      SELECT strftime('%Y-%m', created_at) as month, SUM(total_price) as total
-      FROM service_orders
-      WHERE deleted_at IS NULL
-      GROUP BY month
-    `);
+    // ── Average monthly expenses (only months that had data) ──────────────────
+    const [avgRow] = await db.select<any[]>(
+      `SELECT COALESCE(AVG(monthly_total), 0) as avg_total FROM (
+         SELECT SUM(cost) as monthly_total
+         FROM expenses
+         WHERE deleted_at IS NULL AND date >= ? AND date <= ?
+         GROUP BY strftime('%Y-%m', date)
+       )`,
+      [from, to]
+    );
+
+    // ── Monthly trend: all 12 months of the chosen year ───────────────────────
+    const expTrendRows = await db.select<any[]>(
+      `SELECT strftime('%Y-%m', date) as month, SUM(cost) as total
+       FROM expenses WHERE deleted_at IS NULL AND date >= ? AND date <= ?
+       GROUP BY month`,
+      [from, to]
+    );
+    const revTrendRows = await db.select<any[]>(
+      `SELECT strftime('%Y-%m', created_at) as month, SUM(total_price) as total
+       FROM service_orders WHERE deleted_at IS NULL AND created_at >= ? AND created_at <= ?
+       GROUP BY month`,
+      [from, to + "T23:59:59"]
+    );
 
     const monthNames = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-    const now = new Date();
-    const last12: { month: string; despesas: number; receita: number }[] = [];
-    for (let i = 11; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    const monthlyTrend = Array.from({ length: 12 }, (_, i) => {
+      const key = `${yearStr}-${String(i + 1).padStart(2, "0")}`;
       const expFound = expTrendRows.find((r) => r.month === key);
       const revFound = revTrendRows.find((r) => r.month === key);
-      last12.push({
-        month: `${monthNames[d.getMonth()]} ${String(d.getFullYear()).slice(2)}`,
+      return {
+        month: monthNames[i],
         despesas: expFound ? expFound.total : 0,
         receita: revFound ? revFound.total : 0,
-      });
-    }
-
-    // ── Derived values ────────────────────────────────────────────────────────
-    const totalExp = thisMonthExpRow.total;
-    const totalRev = thisMonthRevRow.total;
-    const lastExp = lastMonthExpRow.total;
-    const lastRev = lastMonthRevRow.total;
-
-    // ── Top 5 Expenses ────────────────────────────────────────────────────────
-    const topExpensesRows = await db.select<Expense[]>(
-      "SELECT * FROM expenses WHERE deleted_at IS NULL ORDER BY cost DESC LIMIT 5"
-    );
+      };
+    });
 
     return {
-      totalThisMonth: totalExp,
-      totalLastMonth: lastExp,
+      totalExpenses: expRow.total,
+      totalRevenue: revRow.total,
+      netResult: revRow.total - expRow.total,
+      expenseCount: expRow.cnt,
       averagePerMonth: avgRow.avg_total,
-      countThisMonth: thisMonthExpRow.cnt,
-      totalCount: totalCountRow.cnt,
-      revenueThisMonth: totalRev,
-      revenueLastMonth: lastRev,
-      netThisMonth: totalRev - totalExp,
-      netLastMonth: lastRev - lastExp,
-      expenseRatioThisMonth: totalRev > 0 ? (totalExp / totalRev) * 100 : null,
-      monthlyTrend: last12,
-      topExpenses: topExpensesRows,
+      monthlyTrend,
     };
   },
 

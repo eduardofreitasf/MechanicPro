@@ -325,14 +325,16 @@ export function ExpensesPage() {
   const hasAdvancedFilters = !!(dateFrom || dateTo || costMin || costMax);
 
   // Analytics state
+  const now = new Date();
   const [analytics, setAnalytics] = useState<ExpenseAnalytics | null>(null);
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
+  const [analyticsYear, setAnalyticsYear] = useState(now.getFullYear());
 
   // Monthly tab state
-  const now = new Date();
   const [monthYear, setMonthYear] = useState({ year: now.getFullYear(), month: now.getMonth() + 1 });
   const [monthData, setMonthData] = useState<MonthAnalytics | null>(null);
   const [monthLoading, setMonthLoading] = useState(false);
+
 
   const fetchExpenses = async () => {
     const result = await expenseService.getExpenses({
@@ -347,9 +349,9 @@ export function ExpensesPage() {
     setExpenses(result);
   };
 
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = async (year: number) => {
     setAnalyticsLoading(true);
-    const result = await expenseService.getAnalytics();
+    const result = await expenseService.getAnalytics(year);
     setAnalytics(result);
     setAnalyticsLoading(false);
   };
@@ -366,8 +368,8 @@ export function ExpensesPage() {
   }, [search, sortBy, sortOrder, dateFrom, dateTo, costMin, costMax]);
 
   useEffect(() => {
-    if (activeTab === "analytics") fetchAnalytics();
-  }, [activeTab]);
+    if (activeTab === "analytics") fetchAnalytics(analyticsYear);
+  }, [activeTab, analyticsYear]);
 
   useEffect(() => {
     if (activeTab === "monthly") fetchMonthData(monthYear.year, monthYear.month);
@@ -378,7 +380,7 @@ export function ExpensesPage() {
     await expenseService.deleteExpense(deleteId);
     setDeleteId(null);
     fetchExpenses();
-    if (activeTab === "analytics") fetchAnalytics();
+    if (activeTab === "analytics") fetchAnalytics(analyticsYear);
     if (activeTab === "monthly") fetchMonthData(monthYear.year, monthYear.month);
   };
 
@@ -390,6 +392,9 @@ export function ExpensesPage() {
     { id: "analytics", icon: <BarChart3 size={16} />, label: "Análise" },
     { id: "monthly", icon: <CalendarDays size={16} />, label: "Mensal" },
   ];
+
+  const currentYear = new Date().getFullYear();
+  const yearOptions = Array.from({ length: currentYear - 2019 }, (_, i) => currentYear - i);
 
   return (
     <>
@@ -406,23 +411,81 @@ export function ExpensesPage() {
         </div>
       </header>
 
-      {/* ── Tabs ── */}
-      <div style={{ display: "flex", gap: "4px", marginBottom: "24px", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "12px", padding: "4px", width: "fit-content" }}>
-        {tabs.map(({ id, icon, label }) => (
-          <button
-            key={id}
-            onClick={() => setActiveTab(id)}
-            style={{
-              display: "flex", alignItems: "center", gap: "8px",
-              padding: "8px 20px", borderRadius: "8px", border: "none", cursor: "pointer",
-              fontWeight: 600, fontSize: "0.9rem", transition: "all 0.15s",
-              background: activeTab === id ? "var(--primary)" : "transparent",
-              color: activeTab === id ? "#fff" : "var(--text-muted)",
-            }}
-          >
-            {icon} {label}
-          </button>
-        ))}
+      {/* ── Tabs & Sub-controls ── */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", gap: "16px", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: "4px", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "12px", padding: "4px", width: "fit-content" }}>
+          {tabs.map(({ id, icon, label }) => (
+            <button
+              key={id}
+              onClick={() => setActiveTab(id)}
+              style={{
+                display: "flex", alignItems: "center", gap: "8px",
+                padding: "8px 20px", borderRadius: "8px", border: "none", cursor: "pointer",
+                fontWeight: 600, fontSize: "0.9rem", transition: "all 0.15s",
+                background: activeTab === id ? "var(--primary)" : "transparent",
+                color: activeTab === id ? "#fff" : "var(--text-muted)",
+              }}
+            >
+              {icon} {label}
+            </button>
+          ))}
+        </div>
+
+        {/* Far-right control: Year Picker for analytics tab */}
+        {activeTab === "analytics" && (
+          <div style={{
+            display: "flex", alignItems: "center", gap: "12px",
+            background: "var(--surface)", border: "1px solid var(--border)",
+            borderRadius: "14px", padding: "10px 16px", width: "fit-content"
+          }}>
+            <button
+              onClick={() => setAnalyticsYear((y) => y - 1)}
+              disabled={analyticsYear <= 2020}
+              style={{
+                background: "none", border: "none", cursor: analyticsYear <= 2020 ? "not-allowed" : "pointer",
+                color: analyticsYear <= 2020 ? "var(--border)" : "var(--text-muted)",
+                display: "flex", alignItems: "center", padding: "4px", borderRadius: "6px",
+              }}
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <select
+              value={analyticsYear}
+              onChange={(e) => setAnalyticsYear(Number(e.target.value))}
+              style={{
+                background: "none", border: "none", cursor: "pointer",
+                fontSize: "1rem", fontWeight: 700, color: "var(--text)",
+                outline: "none", textAlign: "center", minWidth: "80px",
+                fontFamily: "inherit",
+              }}
+            >
+              {yearOptions.map((y) => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+            <button
+              onClick={() => setAnalyticsYear((y) => y + 1)}
+              disabled={analyticsYear >= currentYear}
+              style={{
+                background: "none", border: "none",
+                cursor: analyticsYear >= currentYear ? "not-allowed" : "pointer",
+                color: analyticsYear >= currentYear ? "var(--border)" : "var(--text-muted)",
+                display: "flex", alignItems: "center", padding: "4px", borderRadius: "6px",
+              }}
+            >
+              <ChevronRight size={20} />
+            </button>
+          </div>
+        )}
+
+        {/* Far-right control: Month Picker for monthly tab */}
+        {activeTab === "monthly" && (
+          <MonthPicker
+            year={monthYear.year}
+            month={monthYear.month}
+            onChange={(y, m) => setMonthYear({ year: y, month: m })}
+          />
+        )}
       </div>
 
       {/* ══════════════════ LIST TAB ══════════════════ */}
@@ -579,41 +642,43 @@ export function ExpensesPage() {
               lucro: item.receita - item.despesas,
             }));
 
-            return (
+             return (
               <div className="page-stack">
-                {/* Expense KPIs */}
+
+                {/* KPIs */}
                 <div className="grid-stats">
                   <StatCard
-                    title="Despesa este mês"
-                    value={fmt(analytics.totalThisMonth)}
+                    title={`Despesas ${analyticsYear}`}
+                    value={fmt(analytics.totalExpenses)}
                     icon={<TrendingDown size={22} />}
                     color="#dc2626"
+                    sub={`${analytics.expenseCount} entradas`}
                   />
                   <StatCard
-                    title="Nº total de despesas"
-                    value={String(analytics.totalCount)}
-                    icon={<Hash size={22} />}
+                    title={`Receita ${analyticsYear}`}
+                    value={fmt(analytics.totalRevenue)}
+                    icon={<TrendingUp size={22} />}
                     color="#10b981"
                   />
                   <StatCard
-                    title="Despesa Média mensal"
+                    title="Média Mensal Despesas"
                     value={fmt(analytics.averagePerMonth)}
                     icon={<BarChart3 size={22} />}
                     color="#6366f1"
                   />
                   <StatCard
-                    title="Resultado líquido"
-                    value={fmt(Math.abs(analytics.netThisMonth))}
-                    sub={analytics.netThisMonth >= 0 ? "▲ Lucro" : "▼ Prejuízo"}
-                    icon={analytics.netThisMonth >= 0 ? <TrendingUp size={22} /> : <TrendingDown size={22} />}
-                    color={analytics.netThisMonth >= 0 ? "#10b981" : "#dc2626"}
+                    title={`Resultado ${analyticsYear}`}
+                    value={fmt(Math.abs(analytics.netResult))}
+                    sub={analytics.netResult >= 0 ? "▲ Lucro" : "▼ Prejuízo"}
+                    icon={analytics.netResult >= 0 ? <TrendingUp size={22} /> : <TrendingDown size={22} />}
+                    color={analytics.netResult >= 0 ? "#10b981" : "#dc2626"}
                   />
                 </div>
 
                 {/* Chart 1: Receita vs Despesas */}
                 <div className="card" style={{ padding: "24px" }}>
                   <h3 style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "24px" }}>
-                    <BarChart3 size={20} color="#6366f1" /> Receita vs Despesas — últimos 12 meses
+                    <BarChart3 size={20} color="#6366f1" /> Receita vs Despesas - {analyticsYear}
                   </h3>
                   <div style={{ height: "320px", width: "100%" }}>
                     <ResponsiveContainer width="100%" height="100%">
@@ -639,10 +704,10 @@ export function ExpensesPage() {
                   </div>
                 </div>
 
-                {/* Chart 2: Resultado Líquido Mensal Line Chart */}
+                {/* Chart 2: Resultado Líquido Mensal */}
                 <div className="card" style={{ padding: "24px" }}>
                   <h3 style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "24px" }}>
-                    <TrendingUp size={20} color="#10b981" /> Resultado Líquido Mensal — últimos 12 meses
+                    <TrendingUp size={20} color="#10b981" /> Resultado Líquido Mensal - {analyticsYear}
                   </h3>
                   <div style={{ height: "320px", width: "100%" }}>
                     <ResponsiveContainer width="100%" height="100%">
@@ -673,15 +738,6 @@ export function ExpensesPage() {
       {/* ══════════════════ MONTHLY TAB ══════════════════ */}
       {activeTab === "monthly" && (
         <div className="page-stack">
-          {/* Month Picker row */}
-          <div style={{ display: "flex", alignItems: "center", gap: "16px", flexWrap: "wrap" }}>
-            <MonthPicker
-              year={monthYear.year}
-              month={monthYear.month}
-              onChange={(y, m) => setMonthYear({ year: y, month: m })}
-            />
-          </div>
-
           {monthLoading || !monthData ? (
             <div style={{ padding: "48px", textAlign: "center", color: "var(--text-muted)" }}>A carregar...</div>
           ) : (
@@ -754,7 +810,7 @@ export function ExpensesPage() {
               <div className="card" style={{ padding: "24px" }}>
                 <h3 style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "24px" }}>
                   <CalendarDays size={20} color="#6366f1" />
-                  Receita vs Despesas por Dia — {PT_MONTHS[monthYear.month - 1]} {monthYear.year}
+                  Receita vs Despesas por Dia - {PT_MONTHS[monthYear.month - 1]} {monthYear.year}
                 </h3>
                 {monthData.totalExpenses === 0 && monthData.totalRevenue === 0 ? (
                   <div style={{ textAlign: "center", padding: "40px 0", color: "var(--text-muted)" }}>
