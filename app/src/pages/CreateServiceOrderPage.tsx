@@ -21,10 +21,11 @@ export function CreateServiceOrderPage() {
   const [mileage, setMileage] = useState("");
   const [hours, setHours] = useState("1");
   const [hourlyRate, setHourlyRate] = useState("20");
+  const [hideLaborInPdf, setHideLaborInPdf] = useState(false);
   const [observations, setObservations] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [operations, setOperations] = useState<ServiceOperation[]>(
-    Array(10).fill(null).map(() => ({ description: "", price: 0 }))
+    Array(10).fill(null).map(() => ({ description: "", price: 0, hide_price_in_pdf: false }))
   );
 
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -71,7 +72,7 @@ export function CreateServiceOrderPage() {
     setSelectedVehicleId("");
   }, [selectedClientId]);
 
-  const handleOperationChange = (index: number, field: keyof ServiceOperation, value: string | number) => {
+  const handleOperationChange = (index: number, field: keyof ServiceOperation, value: string | number | boolean) => {
     const newOps = [...operations];
     newOps[index] = { ...newOps[index], [field]: value };
     setOperations(newOps);
@@ -100,6 +101,7 @@ export function CreateServiceOrderPage() {
         parseFloat(hours),
         parseFloat(hourlyRate),
         observations,
+        hideLaborInPdf,
         validOps,
         date
       );
@@ -197,7 +199,13 @@ export function CreateServiceOrderPage() {
               <input type="number" className="form-input" style={{ width: '100%' }} required value={mileage} onChange={(e) => setMileage(e.target.value)} />
             </div>
             <div className="form-group">
-              <label>Mão de Obra (Horas)</label>
+              <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                Mão de Obra
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', fontWeight: 'normal', cursor: 'pointer', margin: 0 }}>
+                  <input type="checkbox" checked={hideLaborInPdf} onChange={(e) => setHideLaborInPdf(e.target.checked)} style={{ width: '14px', height: '14px', accentColor: 'var(--primary)', cursor: 'pointer' }} title="Ocultar custo no PDF" />
+                  Esconder
+                </label>
+              </label>
               <input type="number" step="0.5" className="form-input" style={{ width: '100%' }} required value={hours} onChange={(e) => setHours(e.target.value)} />
             </div>
             <div className="form-group">
@@ -217,7 +225,7 @@ export function CreateServiceOrderPage() {
                 type="button" 
                 className="btn-secondary" 
                 style={{ padding: '4px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}
-                onClick={() => setOperations([...operations, { description: "", price: 0 }])}
+                onClick={() => setOperations([...operations, { description: "", price: 0, hide_price_in_pdf: false }])}
               >
                 <PlusCircle size={14} /> Adicionar Linha
               </button>
@@ -230,6 +238,7 @@ export function CreateServiceOrderPage() {
                   <th style={{ width: '50px', textAlign: 'center' }}>#</th>
                   <th>Descrição</th>
                   <th style={{ width: '150px' }}>Preço (€)</th>
+                  <th style={{ width: '120px', textAlign: 'center' }}>Ocultar</th>
                 </tr>
               </thead>
               <tbody>
@@ -253,6 +262,15 @@ export function CreateServiceOrderPage() {
                         placeholder="0.00" 
                         value={op.price || ""}
                         onChange={(e) => handleOperationChange(index, 'price', parseFloat(e.target.value) || 0)}
+                      />
+                    </td>
+                    <td style={{ textAlign: 'center' }}>
+                      <input
+                        type="checkbox"
+                        checked={!!op.hide_price_in_pdf}
+                        onChange={(e) => handleOperationChange(index, 'hide_price_in_pdf', e.target.checked)}
+                        title="Ocultar preço no PDF"
+                        style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: 'var(--primary)' }}
                       />
                     </td>
                   </tr>

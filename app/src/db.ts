@@ -42,6 +42,7 @@ async function initDb(db: Database) {
       hourly_rate REAL NOT NULL,
       observations TEXT,
       total_price REAL NOT NULL,
+      hide_labor_in_pdf INTEGER NOT NULL DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       deleted_at DATETIME,
       FOREIGN KEY (vehicle_id) REFERENCES vehicles (id)
@@ -52,9 +53,26 @@ async function initDb(db: Database) {
       service_order_id INTEGER NOT NULL,
       description TEXT NOT NULL,
       price REAL NOT NULL,
+      hide_price_in_pdf INTEGER NOT NULL DEFAULT 0,
       FOREIGN KEY (service_order_id) REFERENCES service_orders (id)
     );
   `);
+
+  try {
+    await db.execute(
+      "ALTER TABLE service_operations ADD COLUMN hide_price_in_pdf INTEGER NOT NULL DEFAULT 0"
+    );
+  } catch {
+    // column already exists
+  }
+
+  try {
+    await db.execute(
+      "ALTER TABLE service_orders ADD COLUMN hide_labor_in_pdf INTEGER NOT NULL DEFAULT 0"
+    );
+  } catch {
+    // column already exists
+  }
 }
 
 export interface Client {
@@ -85,6 +103,7 @@ export interface ServiceOrder {
   hourly_rate: number;
   observations: string | null;
   total_price: number;
+  hide_labor_in_pdf?: boolean;
   created_at: string;
   deleted_at: string | null;
   vehicle_plate?: string;
@@ -100,4 +119,5 @@ export interface ServiceOperation {
   service_order_id?: number;
   description: string;
   price: number;
+  hide_price_in_pdf?: boolean;
 }
