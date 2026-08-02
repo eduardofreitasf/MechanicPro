@@ -58,7 +58,7 @@ async function initDb(db: Database) {
     );
   `);
 
-  // expenses table — idempotent, no ALTER needed (new table)
+  // expenses table — idempotent
   await db.execute(`
     CREATE TABLE IF NOT EXISTS expenses (
       id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -70,6 +70,17 @@ async function initDb(db: Database) {
       deleted_at  DATETIME
     )
   `);
+
+  // settings table — key-value store for PDF customization and app config
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+
 
   try {
     await db.execute(
