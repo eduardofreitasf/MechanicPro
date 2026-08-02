@@ -44,6 +44,7 @@ export const serviceOrderService = {
     hours: number,
     hourlyRate: number,
     observations: string | null,
+    hideLaborInPdf: boolean,
     operations: ServiceOperation[],
     date: string
   ): Promise<void> {
@@ -56,9 +57,9 @@ export const serviceOrderService = {
 
     // Insert Service Order
     const result: any = await db.execute(
-      `INSERT INTO service_orders (vehicle_id, mileage, hours, hourly_rate, observations, total_price, created_at) 
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [vehicleId, mileage, hours, hourlyRate, observations, totalPrice, date]
+      `INSERT INTO service_orders (vehicle_id, mileage, hours, hourly_rate, observations, total_price, hide_labor_in_pdf, created_at) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [vehicleId, mileage, hours, hourlyRate, observations, totalPrice, hideLaborInPdf ? 1 : 0, date]
     );
 
     const serviceOrderId = result.lastInsertId;
@@ -66,8 +67,8 @@ export const serviceOrderService = {
     // Insert Operations
     for (const op of operations) {
       await db.execute(
-        "INSERT INTO service_operations (service_order_id, description, price) VALUES (?, ?, ?)",
-        [serviceOrderId, op.description, op.price]
+        "INSERT INTO service_operations (service_order_id, description, price, hide_price_in_pdf) VALUES (?, ?, ?, ?)",
+        [serviceOrderId, op.description, op.price, op.hide_price_in_pdf ? 1 : 0]
       );
     }
   },
@@ -119,6 +120,22 @@ export const serviceOrderService = {
     await db.execute(
       "UPDATE service_orders SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?",
       [id]
+    );
+  },
+
+  async updateLaborVisibility(orderId: number, hide: boolean): Promise<void> {
+    const db = await getDb();
+    await db.execute(
+      "UPDATE service_orders SET hide_labor_in_pdf = ? WHERE id = ?",
+      [hide ? 1 : 0, orderId]
+    );
+  },
+
+  async updateOperationVisibility(operationId: number, hide: boolean): Promise<void> {
+    const db = await getDb();
+    await db.execute(
+      "UPDATE service_operations SET hide_price_in_pdf = ? WHERE id = ?",
+      [hide ? 1 : 0, operationId]
     );
   }
 };

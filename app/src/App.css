@@ -44,6 +44,11 @@ body {
   flex-direction: column;
   box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
   z-index: 10;
+  transition: width 0.3s ease;
+}
+
+.sidebar.collapsed {
+  width: 80px;
 }
 
 .sidebar-header {
@@ -53,13 +58,69 @@ body {
   color: #fff;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
   letter-spacing: -0.02em;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.sidebar-brand.clickable {
+  cursor: pointer;
+}
+
+.sidebar-brand.clickable:hover {
+  opacity: 0.8;
+}
+
+.sidebar.collapsed .sidebar-header {
+  padding: 32px 0;
+  justify-content: center;
+}
+
+.sidebar.collapsed .brand-text {
+  display: none;
+}
+
+.sidebar.collapsed .brand-icon {
+  margin: 0 auto;
+}
+
+.collapse-btn {
+  background: none;
+  border: none;
+  color: var(--sidebar-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.collapse-btn:hover {
+  background: var(--sidebar-hover);
+  color: #fff;
+}
+
+.sidebar.collapsed .collapse-btn {
+  padding: 8px;
 }
 
 .sidebar-nav {
   flex: 1;
   padding: 0 12px;
+}
+
+.sidebar.collapsed .sidebar-nav {
+  padding: 0 8px;
 }
 
 .nav-item {
@@ -75,6 +136,17 @@ body {
   margin-bottom: 4px;
   font-weight: 500;
   font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.sidebar.collapsed .nav-item {
+  padding: 12px 0;
+  justify-content: center;
+}
+
+.sidebar.collapsed .nav-text {
+  display: none;
 }
 
 .nav-item:hover {
@@ -89,6 +161,7 @@ body {
 
 .nav-item svg {
   opacity: 0.7;
+  flex-shrink: 0;
 }
 
 .nav-item.active svg {
@@ -753,4 +826,4 @@ body {
   font-size: 0.85rem;
   outline: none;
   cursor: pointer;
-}
+}
