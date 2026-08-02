@@ -19,21 +19,6 @@ export interface ExpenseAnalytics {
   monthlyTrend: { month: string; despesas: number; receita: number }[];
 }
 
-function currentMonthRange(): { from: string; to: string } {
-  const now = new Date();
-  const from = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
-  const to = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-31`;
-  return { from, to };
-}
-
-function lastMonthRange(): { from: string; to: string } {
-  const now = new Date();
-  const d = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const from = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-01`;
-  const to = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-31`;
-  return { from, to };
-}
-
 export const expenseService = {
   async getExpenses(opts: {
     search?: string;

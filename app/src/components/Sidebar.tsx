@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Users, Car, Wrench, FileDown, Upload, Receipt, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { LayoutDashboard, Users, Car, Wrench, FileDown, Upload, Receipt, PanelLeftClose } from "lucide-react";
 import { useLayoutStore } from "../store/useLayoutStore";
 
 export function Sidebar() {

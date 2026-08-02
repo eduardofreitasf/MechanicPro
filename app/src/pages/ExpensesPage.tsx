@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis,
-  CartesianGrid, Tooltip, Legend, LineChart, Line, ReferenceLine, Cell,
+  CartesianGrid, Tooltip, Legend, LineChart, Line, ReferenceLine,
 } from "recharts";
 import { expenseService, ExpenseAnalytics, MonthAnalytics } from "../services/expenseService";
 import { Expense } from "../db";
@@ -101,7 +101,7 @@ function AddExpenseModal({ isOpen, onClose, onSuccess }: AddExpenseModalProps) {
             <label>Data <span style={{ color: "var(--danger)" }}>*</span></label>
             <DatePicker
               selected={date}
-              onChange={(d) => setDate(d)}
+              onChange={(d: Date | null) => setDate(d)}
               dateFormat="dd/MM/yyyy"
               locale="pt"
               className="form-input"
@@ -687,8 +687,8 @@ export function ExpensesPage() {
                         <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 10 }} dy={8} />
                         <YAxis axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 11 }} tickFormatter={(v) => `${v}€`} />
                         <Tooltip
-                          formatter={(v: number, name: string) => [
-                            `${v.toFixed(2)} €`,
+                          formatter={(v: any, name: any) => [
+                            `${(Number(v) || 0).toFixed(2)} €`,
                             name === "receita" ? "Receita" : "Despesas",
                           ]}
                           contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 8px 16px rgba(0,0,0,0.08)" }}
@@ -716,7 +716,7 @@ export function ExpensesPage() {
                         <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 10 }} dy={8} />
                         <YAxis axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 11 }} tickFormatter={(v) => `${v}€`} />
                         <Tooltip
-                          formatter={(v: number) => [`${v.toFixed(2)} €`, "Resultado Líquido"]}
+                          formatter={(v: any) => [`${(Number(v) || 0).toFixed(2)} €`, "Resultado Líquido"]}
                           contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 8px 16px rgba(0,0,0,0.08)" }}
                         />
                         <ReferenceLine y={0} stroke="#94a3b8" strokeDasharray="3 3" />
@@ -923,7 +923,7 @@ export function ExpensesPage() {
         onClose={() => setIsAddOpen(false)}
         onSuccess={() => {
           fetchExpenses();
-          if (activeTab === "analytics") fetchAnalytics();
+          if (activeTab === "analytics") fetchAnalytics(analyticsYear);
           if (activeTab === "monthly") fetchMonthData(monthYear.year, monthYear.month);
         }}
       />
