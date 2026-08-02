@@ -45,7 +45,7 @@ export function Sidebar() {
         </NavLink>
         <NavLink to="/expenses" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`} title="Despesas">
           <Receipt size={20} />
-          <span>Despesas</span>
+          <span className="nav-text">Despesas</span>
         </NavLink>
         <NavLink to="/import" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`} title="Importar">
           <Upload size={20} />
