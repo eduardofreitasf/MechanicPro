@@ -193,5 +193,55 @@ export const importService = {
     }
 
     return { imported, skipped };
-  }
+  },
+
+  async importExpenses(csv: string): Promise<{ imported: number; skipped: number }> {
+    const rows = parseCsv(csv);
+    if (rows.length <= 1) return { imported: 0, skipped: 0 };
+
+    const headers = rows[0].map(h => h.trim().toLowerCase());
+    const dateIdx    = headers.indexOf("data");
+    const descIdx    = headers.indexOf("descrição");
+    const costIdx    = headers.indexOf("custo");
+    const receiptIdx = headers.indexOf("nº recibo");
+
+    if (dateIdx === -1 || costIdx === -1) {
+      throw new Error("Colunas obrigatórias ('Data', 'Custo') não encontradas no CSV.");
+    }
+
+    const db = await (await import("../db")).getDb();
+    let imported = 0;
+    let skipped  = 0;
+
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i];
+      const rawDate = row[dateIdx]?.trim();
+      const rawCost = row[costIdx]?.trim();
+      const cost    = parseFloat(rawCost?.replace(",", ".") ?? "");
+
+      if (!rawDate || isNaN(cost) || cost < 0) { skipped++; continue; }
+
+      // Normalise date: accept YYYY-MM-DD or DD-MM-YYYY / DD/MM/YYYY
+      let date = rawDate;
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(rawDate)) {
+        const parts = rawDate.split(/[-/]/);
+        if (parts.length === 3) date = `${parts[2]}-${parts[1].padStart(2,"0")}-${parts[0].padStart(2,"0")}`;
+        else { skipped++; continue; }
+      }
+
+      const description = descIdx !== -1 ? row[descIdx]?.trim() || null : null;
+      const receipt_no  = receiptIdx !== -1 ? row[receiptIdx]?.trim() || null : null;
+
+      try {
+        await db.execute(
+          "INSERT INTO expenses (date, description, cost, receipt_no) VALUES (?, ?, ?, ?)",
+          [date, description, cost, receipt_no]
+        );
+        imported++;
+      } catch { skipped++; }
+    }
+
+    return { imported, skipped };
+  },
 };
+

@@ -8,6 +8,7 @@ import { CreateServiceOrderPage } from "./pages/CreateServiceOrderPage";
 import { ServiceOrderDetailsPage } from "./pages/ServiceOrderDetailsPage";
 import { ExportPage } from "./pages/ExportPage";
 import { ImportPage } from "./pages/ImportPage";
+import { ExpensesPage } from "./pages/ExpensesPage";
 import "./App.css";
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
           <Route path="services/:id" element={<ServiceOrderDetailsPage />} />
           <Route path="import" element={<ImportPage />} />
           <Route path="export" element={<ExportPage />} />
+          <Route path="expenses" element={<ExpensesPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

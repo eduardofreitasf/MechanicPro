@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Users, Car, Wrench, Download, CheckCircle, FileSpreadsheet } from "lucide-react";
+import { Users, Car, Wrench, Download, CheckCircle, FileSpreadsheet, Receipt } from "lucide-react";
 import { exportService } from "../services/exportService";
 
 interface ExportOption {
@@ -35,6 +35,13 @@ export function ExportPage() {
       description: "Exportar todas as ordens de serviço com cliente, veículo, preço total e data.",
       icon: <Wrench size={24} color="var(--primary)" />,
       exportFn: exportService.exportServices,
+    },
+    {
+      id: "expenses",
+      label: "Despesas",
+      description: "Exportar todas as despesas registadas com data, descrição, custo e nº de recibo.",
+      icon: <Receipt size={24} color="var(--primary)" />,
+      exportFn: exportService.exportExpenses,
     },
   ];
 

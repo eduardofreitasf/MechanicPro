@@ -58,6 +58,19 @@ async function initDb(db: Database) {
     );
   `);
 
+  // expenses table — idempotent, no ALTER needed (new table)
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS expenses (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      date        TEXT    NOT NULL,
+      description TEXT,
+      cost        REAL    NOT NULL,
+      receipt_no  TEXT,
+      created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
+      deleted_at  DATETIME
+    )
+  `);
+
   try {
     await db.execute(
       "ALTER TABLE service_operations ADD COLUMN hide_price_in_pdf INTEGER NOT NULL DEFAULT 0"
@@ -120,4 +133,14 @@ export interface ServiceOperation {
   description: string;
   price: number;
   hide_price_in_pdf?: boolean;
+}
+
+export interface Expense {
+  id?: number;
+  date: string;
+  description?: string | null;
+  cost: number;
+  receipt_no?: string | null;
+  created_at?: string;
+  deleted_at?: string | null;
 }

@@ -1,6 +1,7 @@
 import { clientService } from "./clientService";
 import { vehicleService } from "./vehicleService";
 import { serviceOrderService } from "./serviceOrderService";
+import { expenseService } from "./expenseService";
 
 function downloadCsv(filename: string, csvContent: string) {
   const BOM = "\uFEFF"; // UTF-8 BOM for Excel compatibility
@@ -66,7 +67,6 @@ export const exportService = {
     for (const o of orders) {
       const operations = await serviceOrderService.getOperations(o.id);
       const opsDetail = operations.map(op => `${op.description}: ${op.price.toFixed(2)}`).join(" | ");
-      // const opsTotal = operations.reduce((sum, op) => sum + op.price, 0);
 
       rows.push([
         escapeCsv(o.id),
@@ -75,10 +75,7 @@ export const exportService = {
         escapeCsv(o.mileage),
         escapeCsv(o.hours),
         escapeCsv(o.hourly_rate),
-        // escapeCsv((o.hours * o.hourly_rate).toFixed(2)),
-        // escapeCsv(opsTotal.toFixed(2)),
         escapeCsv(opsDetail),
-        // escapeCsv(o.total_price),
         escapeCsv(o.observations),
         escapeCsv(new Date(o.created_at).toLocaleDateString("pt-PT")),
       ].join(","));
@@ -88,6 +85,23 @@ export const exportService = {
     const date = new Date().toLocaleDateString("pt-PT").replace(/\//g, "-");
     downloadCsv(`servicos_${date}.csv`, csv);
     return { count: orders.length };
+  },
+
+  async exportExpenses(): Promise<{ count: number }> {
+    const expenses = await expenseService.getExpenses();
+    const headers = ["ID", "Data", "Descrição", "Custo", "Nº Recibo"];
+    const rows = expenses.map(e => [
+      escapeCsv(e.id),
+      escapeCsv(e.date),
+      escapeCsv(e.description),
+      escapeCsv(e.cost),
+      escapeCsv(e.receipt_no),
+    ].join(","));
+
+    const csv = [headers.join(","), ...rows].join("\n");
+    const date = new Date().toLocaleDateString("pt-PT").replace(/\//g, "-");
+    downloadCsv(`despesas_${date}.csv`, csv);
+    return { count: expenses.length };
   },
 };
 
