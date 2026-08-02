@@ -7,6 +7,8 @@ import { serviceOrderService } from "../services/serviceOrderService";
 import { ServiceOrder } from "../db";
 import { ConfirmModal } from "../components/ConfirmModal";
 import { PrintTemplate } from "../components/PrintTemplate";
+import { useSettingsStore } from "../store/useSettingsStore";
+
 
 export function ServiceOrderDetailsPage() {
   const { id } = useParams();
@@ -16,15 +18,18 @@ export function ServiceOrderDetailsPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
+  const loadSettings = useSettingsStore((state) => state.loadSettings);
 
   useEffect(() => {
+    loadSettings();
     if (id) {
       serviceOrderService.getServiceOrderById(parseInt(id)).then(res => {
         setOrder(res);
         setLoading(false);
       });
     }
-  }, [id]);
+  }, [id, loadSettings]);
+
 
   const handlePrint = () => {
     window.print();
