@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Users, Car, Wrench, FileDown, Upload, Receipt, PanelLeftClose } from "lucide-react";
+import { LayoutDashboard, Users, Car, Wrench, FileDown, Upload, Receipt, PanelLeftClose, Settings } from "lucide-react";
 import { useLayoutStore } from "../store/useLayoutStore";
 
 export function Sidebar() {
@@ -55,7 +55,12 @@ export function Sidebar() {
           <FileDown size={20} />
           <span className="nav-text">Exportar</span>
         </NavLink>
+        <NavLink to="/settings" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`} title="Definições">
+          <Settings size={20} />
+          <span className="nav-text">Definições</span>
+        </NavLink>
       </nav>
     </aside>
   );
 }
+
