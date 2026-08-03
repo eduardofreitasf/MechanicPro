@@ -234,6 +234,157 @@ export const PrintTemplate = forwardRef<HTMLDivElement, PrintTemplateProps>(
       );
     };
 
+    // ── ORIGINAL PDF TEMPLATE LAYOUT ──────────────────────────────────────────
+    if (layout === "original") {
+      return (
+        <div
+          className="print-template"
+          ref={ref}
+          style={{
+            display: previewMode ? "block" : undefined,
+            fontFamily: currentFont,
+            color: "#000000",
+            backgroundColor: "#ffffff",
+            padding: "24px",
+            boxSizing: "border-box",
+          }}
+        >
+          {/* Header */}
+          <div className="invoice-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "20px" }}>
+            <div style={{ textAlign: "left" }}>
+              {config.showLogo && config.logoUrl && (
+                <img src={config.logoUrl} alt="Logo" style={{ maxHeight: "50px", marginBottom: "8px" }} />
+              )}
+              <h1 style={{ color: primaryColor, margin: 0, fontSize: "2.5rem" }}>
+                {config.companyName || "OFICINA"}
+              </h1>
+              {config.tagline && <div style={{ color: "#666", fontSize: "0.9rem" }}>{config.tagline}</div>}
+              {config.showShopAddress && config.address && <div style={{ fontSize: "0.85rem", color: "#666" }}>{config.address}</div>}
+              <div style={{ display: "flex", gap: "12px", fontSize: "0.85rem", color: "#666" }}>
+                {config.showShopVat && config.vatNumber && <span>NIF: {config.vatNumber}</span>}
+                {config.showShopPhone && config.phone && <span>Tel: {config.phone}</span>}
+              </div>
+            </div>
+            <div style={{ textAlign: "right", fontSize: "1rem" }}>
+              {config.showOrderNumber && (
+                <div style={{ fontWeight: 800, fontSize: "1.2rem", color: primaryColor, marginBottom: "4px" }}>
+                  Ordem #{order.id}
+                </div>
+              )}
+              <div style={{ color: "#666" }}>
+                Data: {new Date(order.created_at).toLocaleDateString("pt-PT")}
+              </div>
+            </div>
+          </div>
+
+          {/* Client & Vehicle Grid */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "40px", marginBottom: "10px", paddingBottom: "20px" }}>
+            <div>
+              <div style={{ textTransform: "uppercase", color: "#666", fontSize: "0.7rem", fontWeight: 600, letterSpacing: "0.5px", marginBottom: "6px" }}>
+                Cliente
+              </div>
+              <div style={{ fontWeight: 700, fontSize: "1.2rem", color: "#1a1a1a", marginBottom: "16px" }}>
+                {order.client_name}
+              </div>
+
+              <div style={{ textTransform: "uppercase", color: "#666", fontSize: "0.7rem", fontWeight: 600, letterSpacing: "0.5px", marginBottom: "4px", marginTop: "20px" }}>
+                Informações do veículo
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <span style={{ fontWeight: 700, fontSize: "1.1rem", color: primaryColor }}>
+                  {order.vehicle_plate}
+                </span>
+                <span style={{ color: "#666", fontSize: "1rem" }}>
+                  {order.vehicle_brand} {order.vehicle_model}
+                </span>
+              </div>
+            </div>
+            <div style={{ textAlign: "right" }}>
+              {config.showVehicleMileage && order.mileage !== undefined && (
+                <>
+                  <div style={{ textTransform: "uppercase", color: "#666", fontSize: "0.7rem", fontWeight: 600, letterSpacing: "0.5px", marginBottom: "8px" }}>
+                    Quilometragem
+                  </div>
+                  <div style={{ fontWeight: 700, fontSize: "1.2rem", color: "#1a1a1a" }}>
+                    {order.mileage} km
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Table */}
+          <table className="print-table" style={{ width: "100%", borderCollapse: "collapse", marginBottom: "40px" }}>
+            <thead>
+              <tr style={{ borderBottom: "2px solid #1a1a1a" }}>
+                <th style={{ textAlign: "left", padding: rowPadding, fontSize: "0.85rem", textTransform: "uppercase", color: "#666" }}>
+                  Descrição dos Serviços / Peças
+                </th>
+                {config.showItemizedPrices && (
+                  <th style={{ textAlign: "right", padding: rowPadding, fontSize: "0.85rem", textTransform: "uppercase", color: "#666" }}>
+                    Preço
+                  </th>
+                )}
+              </tr>
+            </thead>
+            <tbody>
+              {order.operations?.map((op, index) => (
+                <tr key={index} style={{ borderBottom: "1px solid #eee" }}>
+                  <td style={{ padding: rowPadding, color: "#333" }}>{op.description}</td>
+                  {config.showItemizedPrices && (
+                    <td style={{ textAlign: "right", padding: rowPadding, fontWeight: 500 }}>
+                      {op.hide_price_in_pdf ? "" : `${op.price.toFixed(2)}€`}
+                    </td>
+                  )}
+                </tr>
+              ))}
+              {config.showLaborBreakdown && (
+                <tr style={{ borderBottom: "1px solid #eee" }}>
+                  <td style={{ padding: rowPadding, color: "#333" }}>
+                    {config.showLaborDetails !== false
+                      ? `Mão de Obra (${order.hours}h × ${order.hourly_rate.toFixed(2)}€/h)`
+                      : "Mão de Obra"}
+                  </td>
+                  {config.showItemizedPrices && (
+                    <td style={{ textAlign: "right", padding: rowPadding, fontWeight: 500 }}>
+                      {order.hide_labor_in_pdf ? "" : `${(order.hours * order.hourly_rate).toFixed(2)}€`}
+                    </td>
+                  )}
+                </tr>
+              )}
+            </tbody>
+          </table>
+
+          {/* Bottom section with observations & total box */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "40px", alignItems: "end" }}>
+            <div>
+              <div style={{ textTransform: "uppercase", color: "#666", fontSize: "0.7rem", fontWeight: 600, letterSpacing: "0.5px", marginBottom: "8px" }}>
+                Observações
+              </div>
+              <p style={{ fontSize: "0.9rem", color: "#444", whiteSpace: "pre-wrap", lineHeight: "1.6", margin: 0 }}>
+                {order.observations || "Nenhuma observação registada."}
+              </p>
+            </div>
+            <div style={{ background: headerBgColor, padding: "24px 40px", borderRadius: "16px", textAlign: "right", border: `1px solid ${primaryColor}33`, minWidth: "300px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "32px" }}>
+                <span style={{ fontSize: "1rem", color: primaryColor, fontWeight: 700, letterSpacing: "1px" }}>TOTAL</span>
+                <span style={{ fontWeight: 800, fontSize: "1.5rem", color: textColor, whiteSpace: "nowrap" }}>
+                  {order.total_price.toFixed(2)}€
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer note */}
+          {config.showFooter && config.footerNote && (
+            <div style={{ marginTop: "32px", paddingTop: "12px", borderTop: "1px solid #cbd5e1", fontSize: "0.75rem", textAlign: "center", color: "#64748b" }}>
+              {config.footerNote}
+            </div>
+          )}
+        </div>
+      );
+    }
+
     // ── PAYSTUB / RECIBO ESTRUTURADO LAYOUT (GRID ESTILO RECIBO VENCIMENTO) ───────
     if (layout === "paystub") {
       return (
@@ -791,7 +942,7 @@ export const PrintTemplate = forwardRef<HTMLDivElement, PrintTemplateProps>(
                     key={index}
                     style={{
                       borderBottom: "1px solid #e2e8f0",
-                      background: layout === "cards" && index % 2 === 1 ? "#f8fafc" : "transparent",
+                      background: "transparent",
                     }}
                   >
                     <td style={{ padding: rowPadding, color: "#334155", fontSize: "0.95rem" }}>{op.description}</td>

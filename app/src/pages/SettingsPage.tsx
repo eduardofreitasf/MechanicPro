@@ -110,10 +110,10 @@ export function SettingsPage() {
       >
         <div>
           <h1 style={{ margin: 0, fontSize: "1.8rem", fontWeight: 800 }}>
-            Personalização do Template PDF
+            Definições
           </h1>
           <p style={{ color: "var(--text-muted)", margin: "4px 0 0 0", fontSize: "0.95rem" }}>
-            Personalize as cores, logótipo, layout e rodapé dos impressos de Ordens de Serviço.
+            Personalização do Template PDF.
           </p>
         </div>
 
@@ -277,7 +277,7 @@ export function SettingsPage() {
               <h3 style={{ marginTop: 0, marginBottom: "18px" }}>Informação da Oficina</h3>
               <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                 <div>
-                  <label className="form-label">Nome da Oficina</label>
+                  <label className="form-label">Nome da Oficina: </label>
                   <input
                     type="text"
                     className="input-field"
@@ -288,7 +288,7 @@ export function SettingsPage() {
                 </div>
 
                 <div>
-                  <label className="form-label">Slogan</label>
+                  <label className="form-label">Slogan: </label>
                   <input
                     type="text"
                     className="input-field"
@@ -298,31 +298,29 @@ export function SettingsPage() {
                   />
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                  <div>
-                    <label className="form-label">NIF</label>
-                    <input
-                      type="text"
-                      className="input-field"
-                      value={formData.vatNumber}
-                      onChange={(e) => handleChange("vatNumber", e.target.value)}
-                      placeholder="500 000 000"
-                    />
-                  </div>
-                  <div>
-                    <label className="form-label">Contacto</label>
-                    <input
-                      type="text"
-                      className="input-field"
-                      value={formData.phone}
-                      onChange={(e) => handleChange("phone", e.target.value)}
-                      placeholder="+351 910 000 000"
-                    />
-                  </div>
+                <div>
+                  <label className="form-label">NIF: </label>
+                  <input
+                    type="text"
+                    className="input-field"
+                    value={formData.vatNumber}
+                    onChange={(e) => handleChange("vatNumber", e.target.value)}
+                    placeholder="500 000 000"
+                  />
+                </div>
+                <div>
+                  <label className="form-label">Contacto: </label>
+                  <input
+                    type="text"
+                    className="input-field"
+                    value={formData.phone}
+                    onChange={(e) => handleChange("phone", e.target.value)}
+                    placeholder="+351 910 000 000"
+                  />
                 </div>
 
                 <div>
-                  <label className="form-label">Morada</label>
+                  <label className="form-label">Morada: </label>
                   <input
                     type="text"
                     className="input-field"
@@ -474,6 +472,7 @@ export function SettingsPage() {
                   </label>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
                     {[
+                      { id: "original", label: "Original", desc: "Layout original minimalista com caixa de total destacada" },
                       { id: "paystub", label: "Corporativo", desc: "Estilo folha de vencimento com grelhas e campos de assinatura" },
                       { id: "formal-table", label: "Fatura", desc: "Moldura formal com 4 quadrantes e tabela com linhas completas" },
                       { id: "standard", label: "Padrão", desc: "Layout tradicional e limpo" },

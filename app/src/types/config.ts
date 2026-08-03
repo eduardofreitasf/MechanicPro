@@ -11,7 +11,7 @@ export interface PdfTemplateConfig {
   headerBgColor: string;
   textColor: string;
 
-  layoutStyle: "paystub" | "formal-table" | "standard" | "modern-split" | "minimal" | "sidebar";
+  layoutStyle: "original" | "paystub" | "formal-table" | "standard" | "modern-split" | "minimal" | "sidebar";
   tableDensity: "compact" | "normal" | "spacious";
 
   // Visibility Toggles
@@ -101,18 +101,18 @@ export const DEFAULT_PDF_CONFIG: PdfTemplateConfig = {
   accentColor: "#4f46e5",
   headerBgColor: "#f0f4ff",
   textColor: "#1a1a1a",
-  layoutStyle: "paystub",
+  layoutStyle: "original",
   tableDensity: "normal",
   showLogo: false,
-  showOrderNumber: true,
-  showShopAddress: true,
-  showShopPhone: true,
-  showShopVat: true,
+  showOrderNumber: false,
+  showShopAddress: false,
+  showShopPhone: false,
+  showShopVat: false,
   showClientPhone: true,
   showVehicleMileage: true,
   showItemizedPrices: true,
   showLaborBreakdown: true,
-  showLaborDetails: true,
-  showFooter: true,
+  showLaborDetails: false,
+  showFooter: false,
   footerNote: "Obrigado pela sua preferência! Garantia de 2 anos em todas as reparações efetuadas.",
 };
