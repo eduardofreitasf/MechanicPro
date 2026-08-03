@@ -9,6 +9,7 @@ import { ServiceOrderDetailsPage } from "./pages/ServiceOrderDetailsPage";
 import { ExportPage } from "./pages/ExportPage";
 import { ImportPage } from "./pages/ImportPage";
 import { ExpensesPage } from "./pages/ExpensesPage";
+import { SettingsPage } from "./pages/SettingsPage";
 import "./App.css";
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
           <Route path="import" element={<ImportPage />} />
           <Route path="export" element={<ExportPage />} />
           <Route path="expenses" element={<ExpensesPage />} />
+          <Route path="settings" element={<SettingsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
