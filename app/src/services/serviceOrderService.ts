@@ -1,16 +1,16 @@
 import { getDb, ServiceOrder, ServiceOperation } from "../db";
 
 export const serviceOrderService = {
-  async getServiceOrders(search: string = "", sortOrder: "ASC" | "DESC" = "DESC"): Promise<ServiceOrder[]> {
+  async getServiceOrders(search: string = "", sortOrder: "ASC" | "DESC" = "DESC", isDraft: boolean = false): Promise<ServiceOrder[]> {
     const db = await getDb();
     let query = `
       SELECT so.*, v.plate as vehicle_plate, c.name as client_name
       FROM service_orders so
       JOIN vehicles v ON so.vehicle_id = v.id
       JOIN clients c ON v.client_id = c.id
-      WHERE so.deleted_at IS NULL
+      WHERE so.deleted_at IS NULL AND so.is_draft = ?
     `;
-    let params: any[] = [];
+    let params: any[] = [isDraft ? 1 : 0];
     if (search.trim() !== "") {
       query += " AND (v.plate LIKE ? OR c.name LIKE ? OR so.observations LIKE ?)";
       const searchParam = `%${search.trim()}%`;
@@ -23,7 +23,7 @@ export const serviceOrderService = {
   async getServiceOrderById(id: number): Promise<ServiceOrder | null> {
     const db = await getDb();
     const orders = await db.select<ServiceOrder[]>(
-      `SELECT so.*, v.plate as vehicle_plate, v.brand as vehicle_brand, v.model as vehicle_model, c.name as client_name, c.phone as client_phone
+      `SELECT so.*, v.plate as vehicle_plate, v.brand as vehicle_brand, v.model as vehicle_model, c.name as client_name, c.phone as client_phone, v.client_id as client_id
        FROM service_orders so
        JOIN vehicles v ON so.vehicle_id = v.id
        JOIN clients c ON v.client_id = c.id
@@ -46,7 +46,8 @@ export const serviceOrderService = {
     observations: string | null,
     hideLaborInPdf: boolean,
     operations: ServiceOperation[],
-    date: string
+    date: string,
+    isDraft: boolean = false
   ): Promise<void> {
     const db = await getDb();
     
@@ -57,9 +58,9 @@ export const serviceOrderService = {
 
     // Insert Service Order
     const result: any = await db.execute(
-      `INSERT INTO service_orders (vehicle_id, mileage, hours, hourly_rate, observations, total_price, hide_labor_in_pdf, created_at) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [vehicleId, mileage, hours, hourlyRate, observations, totalPrice, hideLaborInPdf ? 1 : 0, date]
+      `INSERT INTO service_orders (vehicle_id, mileage, hours, hourly_rate, observations, total_price, hide_labor_in_pdf, is_draft, created_at) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [vehicleId, mileage, hours, hourlyRate, observations, totalPrice, hideLaborInPdf ? 1 : 0, isDraft ? 1 : 0, date]
     );
 
     const serviceOrderId = result.lastInsertId;
@@ -69,6 +70,45 @@ export const serviceOrderService = {
       await db.execute(
         "INSERT INTO service_operations (service_order_id, description, price, hide_price_in_pdf) VALUES (?, ?, ?, ?)",
         [serviceOrderId, op.description, op.price, op.hide_price_in_pdf ? 1 : 0]
+      );
+    }
+  },
+
+  async updateServiceOrder(
+    id: number,
+    vehicleId: number,
+    mileage: number,
+    hours: number,
+    hourlyRate: number,
+    observations: string | null,
+    hideLaborInPdf: boolean,
+    operations: ServiceOperation[],
+    date: string,
+    isDraft: boolean
+  ): Promise<void> {
+    const db = await getDb();
+    
+    // Calculate total price
+    const operationsTotal = operations.reduce((sum, op) => sum + op.price, 0);
+    const labourTotal = hours * hourlyRate;
+    const totalPrice = operationsTotal + labourTotal;
+
+    // Update Service Order
+    await db.execute(
+      `UPDATE service_orders 
+       SET vehicle_id = ?, mileage = ?, hours = ?, hourly_rate = ?, observations = ?, total_price = ?, hide_labor_in_pdf = ?, is_draft = ?, created_at = ?
+       WHERE id = ?`,
+      [vehicleId, mileage, hours, hourlyRate, observations, totalPrice, hideLaborInPdf ? 1 : 0, isDraft ? 1 : 0, date, id]
+    );
+
+    // Delete existing operations
+    await db.execute("DELETE FROM service_operations WHERE service_order_id = ?", [id]);
+
+    // Insert Operations
+    for (const op of operations) {
+      await db.execute(
+        "INSERT INTO service_operations (service_order_id, description, price, hide_price_in_pdf) VALUES (?, ?, ?, ?)",
+        [id, op.description, op.price, op.hide_price_in_pdf ? 1 : 0]
       );
     }
   },

@@ -43,6 +43,7 @@ async function initDb(db: Database) {
       observations TEXT,
       total_price REAL NOT NULL,
       hide_labor_in_pdf INTEGER NOT NULL DEFAULT 0,
+      is_draft INTEGER NOT NULL DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       deleted_at DATETIME,
       FOREIGN KEY (vehicle_id) REFERENCES vehicles (id)
@@ -97,6 +98,14 @@ async function initDb(db: Database) {
   } catch {
     // column already exists
   }
+
+  try {
+    await db.execute(
+      "ALTER TABLE service_orders ADD COLUMN is_draft INTEGER NOT NULL DEFAULT 0"
+    );
+  } catch {
+    // column already exists
+  }
 }
 
 export interface Client {
@@ -128,6 +137,7 @@ export interface ServiceOrder {
   observations: string | null;
   total_price: number;
   hide_labor_in_pdf?: boolean;
+  is_draft?: number;
   created_at: string;
   deleted_at: string | null;
   vehicle_plate?: string;
@@ -135,6 +145,7 @@ export interface ServiceOrder {
   vehicle_model?: string;
   client_name?: string;
   client_phone?: string | null;
+  client_id?: number;
   operations?: ServiceOperation[];
 }
 
