@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Printer, Download, Trash2, Calendar, User, Car } from "lucide-react";
+import { ArrowLeft, Printer, Download, Trash2, Calendar, User, Car, Edit, Check, AlertCircle } from "lucide-react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { serviceOrderService } from "../services/serviceOrderService";
@@ -118,6 +118,28 @@ export function ServiceOrderDetailsPage() {
     }
   };
 
+  const handleFinalize = async () => {
+    if (!order) return;
+    try {
+      await serviceOrderService.updateServiceOrder(
+        order.id,
+        order.vehicle_id,
+        order.mileage,
+        order.hours,
+        order.hourly_rate,
+        order.observations,
+        !!order.hide_labor_in_pdf,
+        order.operations || [],
+        order.created_at,
+        false
+      );
+      const updated = await serviceOrderService.getServiceOrderById(order.id);
+      setOrder(updated);
+    } catch (err) {
+      console.error("Erro ao finalizar ordem", err);
+    }
+  };
+
   if (loading) return <div className="main-content">Carregando...</div>;
   if (!order) return <div className="main-content">Ordem não encontrada.</div>;
 
@@ -132,6 +154,18 @@ export function ServiceOrderDetailsPage() {
           <h1 style={{ margin: 0 }}>Ordem de Serviço</h1>
         </div>
         <div className="header-actions">
+          {order.is_draft === 1 && (
+            <>
+              <button className="btn-secondary" onClick={() => navigate(`/services/edit/${order.id}`)} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Edit size={18} />
+                <span>Editar Rascunho</span>
+              </button>
+              <button className="btn" onClick={handleFinalize} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Check size={18} />
+                <span>Finalizar Ordem</span>
+              </button>
+            </>
+          )}
           <button className="btn-secondary" onClick={handlePrint} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Printer size={18} />
             <span>Imprimir PDF</span>
@@ -162,6 +196,25 @@ export function ServiceOrderDetailsPage() {
 
       {/* Screen View (Hidden in Print) */}
       <div className="no-print">
+        {order.is_draft === 1 && (
+          <div className="draft-banner">
+            <div className="draft-banner-content">
+              <AlertCircle size={24} />
+              <div>
+                <h4>Esta ordem é um Rascunho</h4>
+                <p>Este documento não está finalizado e não é contabilizado nas estatísticas financeiras.</p>
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: "10px" }}>
+              <button className="btn-secondary" style={{ background: "white", color: "#b45309", borderColor: "#fde68a" }} onClick={() => navigate(`/services/edit/${order.id}`)}>
+                <Edit size={16} /> Editar
+              </button>
+              <button className="btn" style={{ background: "#d97706", borderColor: "#d97706", color: "white" }} onClick={handleFinalize}>
+                <Check size={16} /> Finalizar
+              </button>
+            </div>
+          </div>
+        )}
         <div className="grid-2-col" style={{ marginBottom: '24px' }}>
           <div className="card" style={{ padding: '24px' }}>
             <h3 style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>

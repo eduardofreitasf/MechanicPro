@@ -22,6 +22,7 @@ function App() {
           <Route path="vehicles" element={<VehiclesPage />} />
           <Route path="services" element={<ServicesPage />} />
           <Route path="services/new" element={<CreateServiceOrderPage />} />
+          <Route path="services/edit/:id" element={<CreateServiceOrderPage />} />
           <Route path="services/:id" element={<ServiceOrderDetailsPage />} />
           <Route path="import" element={<ImportPage />} />
           <Route path="export" element={<ExportPage />} />

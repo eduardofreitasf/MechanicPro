@@ -100,7 +100,12 @@ export function VehicleHistoryOverlay({ isOpen, onClose, vehicleId, vehiclePlate
                           <Wrench size={18} />
                         </div>
                         <div>
-                          <div style={{ fontWeight: 700 }}>{new Date(order.created_at).toLocaleDateString('pt-PT')}</div>
+                          <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            {new Date(order.created_at).toLocaleDateString('pt-PT')}
+                            {order.is_draft === 1 && (
+                              <span className="badge-draft">Rascunho</span>
+                            )}
+                          </div>
                           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{order.mileage.toLocaleString()} km</div>
                         </div>
                       </div>

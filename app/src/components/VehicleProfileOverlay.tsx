@@ -133,8 +133,11 @@ export function VehicleProfileOverlay({ isOpen, onClose, vehicle }: VehicleProfi
                             <Wrench size={18} />
                           </div>
                           <div>
-                            <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                               {new Date(order.created_at).toLocaleDateString('pt-PT')}
+                              {order.is_draft === 1 && (
+                                <span className="badge-draft">Rascunho</span>
+                              )}
                             </div>
                             <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>
                               {order.mileage.toLocaleString()} km

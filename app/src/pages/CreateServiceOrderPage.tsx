@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Save, PlusCircle, History } from "lucide-react";
+import { useServiceOrderStore } from "../store/useServiceOrderStore";
 import { serviceOrderService } from "../services/serviceOrderService";
 import { clientService } from "../services/clientService";
 import { vehicleService } from "../services/vehicleService";
@@ -39,6 +40,7 @@ export function CreateServiceOrderPage() {
       if (updatedClients.length > 0) {
         const newestClient = updatedClients.reduce((max, c) => c.id > max.id ? c : max, updatedClients[0]);
         setSelectedClientId(newestClient.id.toString());
+        setSelectedVehicleId("");
       }
     } catch (err) {
       console.error("Erro ao recarregar clientes após criação", err);
@@ -59,9 +61,56 @@ export function CreateServiceOrderPage() {
     }
   };
 
+  const { id } = useParams();
+
   useEffect(() => {
     clientService.getClients().then(setClients);
   }, []);
+
+  useEffect(() => {
+    if (id) {
+      serviceOrderService.getServiceOrderById(parseInt(id)).then(order => {
+        if (order) {
+          if (order.client_id) {
+            setSelectedClientId(order.client_id.toString());
+            // Fetch vehicles of the client
+            vehicleService.getVehiclesByClient(order.client_id).then(vList => {
+              setVehicles(vList);
+              setSelectedVehicleId(order.vehicle_id.toString());
+            });
+          }
+          setMileage(order.mileage.toString());
+          setHours(order.hours.toString());
+          setHourlyRate(order.hourly_rate.toString());
+          setHideLaborInPdf(!!order.hide_labor_in_pdf);
+          setObservations(order.observations || "");
+          setDate(order.created_at.split('T')[0]);
+
+          const populatedOps = Array(10).fill(null).map((_, idx) => {
+            if (order.operations && order.operations[idx]) {
+              return {
+                description: order.operations[idx].description,
+                price: order.operations[idx].price,
+                hide_price_in_pdf: !!order.operations[idx].hide_price_in_pdf
+              };
+            }
+            return { description: "", price: 0, hide_price_in_pdf: false };
+          });
+
+          if (order.operations && order.operations.length > 10) {
+            for (let i = 10; i < order.operations.length; i++) {
+              populatedOps.push({
+                description: order.operations[i].description,
+                price: order.operations[i].price,
+                hide_price_in_pdf: !!order.operations[i].hide_price_in_pdf
+              });
+            }
+          }
+          setOperations(populatedOps);
+        }
+      });
+    }
+  }, [id]);
 
   useEffect(() => {
     if (selectedClientId) {
@@ -69,7 +118,6 @@ export function CreateServiceOrderPage() {
     } else {
       setVehicles([]);
     }
-    setSelectedVehicleId("");
   }, [selectedClientId]);
 
   const handleOperationChange = (index: number, field: keyof ServiceOperation, value: string | number | boolean) => {
@@ -84,8 +132,7 @@ export function CreateServiceOrderPage() {
     return opsTotal + labourTotal;
   };
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = async (isDraft: boolean) => {
     if (!selectedVehicleId || !mileage || !hours || !hourlyRate || !date) {
         setError("Por favor, preencha todos os campos obrigatórios (Cliente, Veículo, Quilometragem, Mão de obra, Data).");
         window.scrollTo(0, 0);
@@ -95,16 +142,33 @@ export function CreateServiceOrderPage() {
     const validOps = operations.filter(op => op.description.trim() !== "");
 
     try {
-      await serviceOrderService.createServiceOrder(
-        parseInt(selectedVehicleId),
-        parseInt(mileage),
-        parseFloat(hours),
-        parseFloat(hourlyRate),
-        observations,
-        hideLaborInPdf,
-        validOps,
-        date
-      );
+      if (id) {
+        await serviceOrderService.updateServiceOrder(
+          parseInt(id),
+          parseInt(selectedVehicleId),
+          parseInt(mileage),
+          parseFloat(hours),
+          parseFloat(hourlyRate),
+          observations,
+          hideLaborInPdf,
+          validOps,
+          date,
+          isDraft
+        );
+      } else {
+        await serviceOrderService.createServiceOrder(
+          parseInt(selectedVehicleId),
+          parseInt(mileage),
+          parseFloat(hours),
+          parseFloat(hourlyRate),
+          observations,
+          hideLaborInPdf,
+          validOps,
+          date,
+          isDraft
+        );
+      }
+      useServiceOrderStore.getState().setActiveTab(isDraft ? "draft" : "finalized");
       navigate("/services");
     } catch (err: any) {
       setError(err.message || "Erro ao guardar ordem de serviço");
@@ -121,12 +185,16 @@ export function CreateServiceOrderPage() {
           <button className="btn-secondary" onClick={() => navigate("/services")} style={{ padding: '8px' }}>
             <ArrowLeft size={20} />
           </button>
-          <h1>Nova Ordem de Serviço</h1>
+          <h1>{id ? "Editar Rascunho" : "Nova Ordem de Serviço"}</h1>
         </div>
-        <div className="header-actions">
-        <button className="btn" onClick={handleSave}>
+        <div className="header-actions" style={{ display: 'flex', gap: '12px' }}>
+        <button className="btn-secondary" onClick={() => handleSave(true)}>
           <Save size={18} />
-          Guardar Ordem
+          Guardar Rascunho
+        </button>
+        <button className="btn" onClick={() => handleSave(false)}>
+          <Save size={18} />
+          Finalizar Ordem
         </button>
         </div>
       </header>
@@ -153,7 +221,10 @@ export function CreateServiceOrderPage() {
                   + Criar Novo
                 </button>
               </label>
-              <select className="form-input" style={{ width: '100%' }} required value={selectedClientId} onChange={(e) => setSelectedClientId(e.target.value)}>
+              <select className="form-input" style={{ width: '100%' }} required value={selectedClientId} onChange={(e) => {
+                setSelectedClientId(e.target.value);
+                setSelectedVehicleId("");
+              }}>
                 <option value="">Selecionar Cliente</option>
                 {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
@@ -314,10 +385,16 @@ export function CreateServiceOrderPage() {
               </div>
             </div>
             
-            <button className="btn" style={{ width: '100%', marginTop: '32px', height: '48px', justifyContent: 'center', fontSize: '1rem' }} onClick={handleSave}>
-              <Save size={20} />
-              Guardar Ordem
-            </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '32px' }}>
+              <button className="btn" style={{ width: '100%', height: '48px', justifyContent: 'center', fontSize: '1rem' }} onClick={() => handleSave(false)}>
+                <Save size={20} />
+                Finalizar Ordem
+              </button>
+              <button className="btn-secondary" style={{ width: '100%', height: '48px', justifyContent: 'center', fontSize: '1rem' }} onClick={() => handleSave(true)}>
+                <Save size={20} />
+                Guardar Rascunho
+              </button>
+            </div>
           </div>
         </div>
       </div>

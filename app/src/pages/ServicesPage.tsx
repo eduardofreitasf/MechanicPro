@@ -6,7 +6,17 @@ import { ConfirmModal } from "../components/ConfirmModal";
 
 export function ServicesPage() {
   const navigate = useNavigate();
-  const { serviceOrders: orders, search, sortOrder, setSearch, setSortOrder, fetchServiceOrders, deleteServiceOrder } = useServiceOrderStore();
+  const { 
+    serviceOrders: orders, 
+    search, 
+    sortOrder, 
+    activeTab,
+    setSearch, 
+    setSortOrder, 
+    setActiveTab,
+    fetchServiceOrders, 
+    deleteServiceOrder 
+  } = useServiceOrderStore();
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -58,6 +68,20 @@ export function ServicesPage() {
         </div>
       </header>
 
+      <div className="tabs-container">
+        <button
+          className={`tab-btn ${activeTab === "finalized" ? "active" : ""}`}
+          onClick={() => setActiveTab("finalized")}
+        >
+          Serviços
+        </button>
+        <button
+          className={`tab-btn ${activeTab === "draft" ? "active" : ""}`}
+          onClick={() => setActiveTab("draft")}
+        >
+          Rascunhos
+        </button>
+      </div>
 
       <div className="card">
         <div className="table-scroll">
@@ -100,7 +124,11 @@ export function ServicesPage() {
         {orders.length === 0 && (
           <div className="empty-state">
             <Wrench size={48} style={{ opacity: 0.2, marginBottom: "16px" }} />
-            <p>Nenhuma ordem de serviço encontrada. Crie uma para começar.</p>
+            <p>
+              {activeTab === "draft" 
+                ? "Nenhum rascunho encontrado."
+                : "Nenhuma ordem de serviço encontrada. Crie uma para começar."}
+            </p>
           </div>
         )}
       </div>
@@ -108,8 +136,10 @@ export function ServicesPage() {
         isOpen={deleteId !== null}
         onClose={() => setDeleteId(null)}
         onConfirm={handleDelete}
-        title="Eliminar Ordem de Serviço"
-        message="Tem a certeza que deseja eliminar esta ordem de serviço? Esta ação não pode ser revertida."
+        title={activeTab === "draft" ? "Eliminar Rascunho" : "Eliminar Ordem de Serviço"}
+        message={activeTab === "draft" 
+          ? "Tem a certeza que deseja eliminar este rascunho? Esta ação não pode ser revertida."
+          : "Tem a certeza que deseja eliminar esta ordem de serviço? Esta ação não pode ser revertida."}
         confirmText="Eliminar"
         cancelText="Cancelar"
       />

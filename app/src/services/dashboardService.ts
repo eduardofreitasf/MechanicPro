@@ -20,8 +20,8 @@ export const dashboardService = {
     // Get basic counts
     const clients = await db.select<any[]>("SELECT COUNT(*) as count FROM clients WHERE deleted_at IS NULL");
     const vehicles = await db.select<any[]>("SELECT COUNT(*) as count FROM vehicles WHERE deleted_at IS NULL");
-    const services = await db.select<any[]>("SELECT COUNT(*) as count FROM service_orders WHERE deleted_at IS NULL");
-    const revenue = await db.select<any[]>("SELECT SUM(total_price) as total FROM service_orders WHERE deleted_at IS NULL");
+    const services = await db.select<any[]>("SELECT COUNT(*) as count FROM service_orders WHERE deleted_at IS NULL AND is_draft = 0");
+    const revenue = await db.select<any[]>("SELECT SUM(total_price) as total FROM service_orders WHERE deleted_at IS NULL AND is_draft = 0");
 
     // Get revenue by month (last 6 months)
     const monthlyData = await db.select<any[]>(`
@@ -29,7 +29,7 @@ export const dashboardService = {
         strftime('%Y-%m', created_at) as month,
         SUM(total_price) as revenue
       FROM service_orders
-      WHERE deleted_at IS NULL
+      WHERE deleted_at IS NULL AND is_draft = 0
       GROUP BY month
       ORDER BY month DESC
       LIMIT 6
@@ -40,7 +40,7 @@ export const dashboardService = {
       SELECT v.brand, COUNT(*) as count
       FROM service_orders so
       JOIN vehicles v ON so.vehicle_id = v.id
-      WHERE so.deleted_at IS NULL
+      WHERE so.deleted_at IS NULL AND so.is_draft = 0
       GROUP BY v.brand
       ORDER BY count DESC
       LIMIT 5
@@ -52,7 +52,7 @@ export const dashboardService = {
       FROM service_orders so
       JOIN vehicles v ON so.vehicle_id = v.id
       JOIN clients c ON v.client_id = c.id
-      WHERE so.deleted_at IS NULL
+      WHERE so.deleted_at IS NULL AND so.is_draft = 0
       GROUP BY c.id
       ORDER BY count DESC
       LIMIT 5
@@ -63,7 +63,7 @@ export const dashboardService = {
       SELECT v.plate, v.brand, v.model, COUNT(*) as count
       FROM service_orders so
       JOIN vehicles v ON so.vehicle_id = v.id
-      WHERE so.deleted_at IS NULL
+      WHERE so.deleted_at IS NULL AND so.is_draft = 0
       GROUP BY v.id
       ORDER BY count DESC
       LIMIT 5
@@ -75,7 +75,7 @@ export const dashboardService = {
       FROM service_orders so
       JOIN vehicles v ON so.vehicle_id = v.id
       JOIN clients c ON v.client_id = c.id
-      WHERE so.deleted_at IS NULL
+      WHERE so.deleted_at IS NULL AND so.is_draft = 0
       ORDER BY so.created_at DESC
       LIMIT 5
     `);
