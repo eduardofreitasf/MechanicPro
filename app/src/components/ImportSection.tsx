@@ -10,7 +10,7 @@ interface ImportOption {
   importFn: (csv: string) => Promise<{ imported: number; skipped: number }>;
 }
 
-export function ImportPage() {
+export function ImportSection() {
   const [importing, setImporting] = useState<string | null>(null);
   const [results, setResults] = useState<{ id: string; imported: number; skipped: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -83,15 +83,11 @@ export function ImportPage() {
   };
 
   return (
-    <div className="main-content">
-      <header className="header">
-        <div>
-          <h1>Importar Dados</h1>
-          <p style={{ color: "var(--text-muted)", marginTop: "4px", fontSize: "0.95rem" }}>
-            Importe dados para o sistema através de ficheiros CSV.
-          </p>
-        </div>
-      </header>
+    <div className="settings-data-section">
+      <div className="settings-section-header">
+        <h3 className="settings-section-title">Importar Dados</h3>
+        <p className="settings-section-desc">Importe dados para o sistema através de ficheiros CSV.</p>
+      </div>
 
       <input
         type="file"
@@ -102,27 +98,17 @@ export function ImportPage() {
       />
 
       {error && (
-        <div style={{ 
-          background: "#fef2f2", 
-          border: "1px solid #fee2e2", 
-          padding: "16px", 
-          borderRadius: "12px", 
-          marginBottom: "24px",
-          display: "flex",
-          alignItems: "center",
-          gap: "12px",
-          color: "#b91c1c"
-        }}>
+        <div className="error-banner">
           <AlertCircle size={20} />
           <span>{error}</span>
         </div>
       )}
 
-      <div className="card" style={{ marginBottom: "24px", padding: "24px", background: "#f8fafc" }}>
-        <h4 style={{ marginBottom: "12px", display: "flex", alignItems: "center", gap: "8px" }}>
+      <div className="card note-card">
+        <h4>
           <FileText size={18} color="var(--text-muted)" /> Notas sobre o formato
         </h4>
-        <ul style={{ fontSize: "0.85rem", color: "var(--text-muted)", paddingLeft: "20px", lineHeight: "1.6" }}>
+        <ul>
           <li>O ficheiro deve ser um CSV separado por vírgulas.</li>
           <li>A primeira linha deve conter os cabeçalhos.</li>
           <li>Ao importar veículos, o cliente já deve estar registado com o nome exato.</li>
@@ -131,7 +117,7 @@ export function ImportPage() {
         </ul>
       </div>
 
-      <div className="grid-3-col">
+      <div className="settings-grid-cards">
         {importOptions.map((option) => {
           const isImporting = importing === option.id;
           const showResult = results?.id === option.id;
@@ -139,68 +125,38 @@ export function ImportPage() {
           return (
             <div
               key={option.id}
-              className="card"
+              className="card data-card"
               style={{
-                padding: "28px",
-                display: "flex",
-                flexDirection: "column",
-                gap: "16px",
-                transition: "all 0.2s ease",
                 opacity: importing && !isImporting ? 0.5 : 1,
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <div
-                  style={{
-                    width: "48px",
-                    height: "48px",
-                    borderRadius: "12px",
-                    background: "#eff6ff",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
-                  }}
-                >
+              <div className="data-card-header">
+                <div className="data-card-icon-wrap">
                   {option.icon}
                 </div>
-                <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 700 }}>{option.label}</h3>
+                <h3 className="data-card-title">{option.label}</h3>
               </div>
 
-              <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--text-muted)", lineHeight: "1.5" }}>
+              <p className="data-card-desc">
                 {option.description}
               </p>
 
               {showResult && (
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "4px",
-                    padding: "12px",
-                    background: "#f0fdf4",
-                    borderRadius: "8px",
-                    fontSize: "0.85rem",
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#16a34a", fontWeight: 600 }}>
+                <div className="success-banner-compact">
+                  <div className="success-banner-compact-title">
                     <CheckCircle size={16} />
                     <span>Importação concluída</span>
                   </div>
-                  <div style={{ color: "var(--text-muted)", paddingLeft: "24px" }}>
+                  <div className="success-banner-compact-detail">
                     {results.imported} registos criados | {results.skipped} ignorados
                   </div>
                 </div>
               )}
 
               <button
-                className="btn"
+                className="btn btn-full"
                 onClick={() => triggerUpload(option)}
                 disabled={!!importing}
-                style={{
-                  marginTop: "auto",
-                  width: "100%",
-                }}
               >
                 <Upload size={18} />
                 <span>{isImporting ? "A processar..." : "Selecionar Ficheiro"}</span>

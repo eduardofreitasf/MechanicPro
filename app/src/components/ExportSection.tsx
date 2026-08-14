@@ -10,7 +10,7 @@ interface ExportOption {
   exportFn: () => Promise<{ count: number }>;
 }
 
-export function ExportPage() {
+export function ExportSection() {
   const [exporting, setExporting] = useState<string | null>(null);
   const [lastExported, setLastExported] = useState<{ id: string; count: number } | null>(null);
 
@@ -59,17 +59,13 @@ export function ExportPage() {
   };
 
   return (
-    <div className="main-content">
-      <header className="header">
-        <div>
-          <h1>Exportar Dados</h1>
-          <p style={{ color: "var(--text-muted)", marginTop: "4px", fontSize: "0.95rem" }}>
-            Exporte os dados do sistema em formato CSV.
-          </p>
-        </div>
-      </header>
+    <div className="settings-data-section">
+      <div className="settings-section-header">
+        <h3 className="settings-section-title">Exportar Dados</h3>
+        <p className="settings-section-desc">Exporte os dados do sistema em formato CSV.</p>
+      </div>
 
-      <div className="grid-3-col">
+      <div className="settings-grid-cards">
         {exportOptions.map((option) => {
           const isExporting = exporting === option.id;
           const wasExported = lastExported?.id === option.id;
@@ -77,71 +73,41 @@ export function ExportPage() {
           return (
             <div
               key={option.id}
-              className="card"
+              className="card data-card"
               style={{
-                padding: "28px",
-                display: "flex",
-                flexDirection: "column",
-                gap: "16px",
-                transition: "all 0.2s ease",
                 border: wasExported ? "1px solid var(--primary)" : undefined,
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <div
-                  style={{
-                    width: "48px",
-                    height: "48px",
-                    borderRadius: "12px",
-                    background: "#eff6ff",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
-                  }}
-                >
+              <div className="data-card-header">
+                <div className="data-card-icon-wrap">
                   {option.icon}
                 </div>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 700 }}>{option.label}</h3>
-                  <div style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "2px" }}>
+                  <h3 className="data-card-title">{option.label}</h3>
+                  <div className="data-card-badge-wrap">
                     <FileSpreadsheet size={13} color="var(--text-muted)" />
-                    <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: 500 }}>CSV</span>
+                    <span>CSV</span>
                   </div>
                 </div>
               </div>
 
-              <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--text-muted)", lineHeight: "1.5" }}>
+              <p className="data-card-desc">
                 {option.description}
               </p>
 
               {wasExported && (
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    padding: "8px 12px",
-                    background: "#f0fdf4",
-                    borderRadius: "8px",
-                    fontSize: "0.85rem",
-                    color: "#16a34a",
-                    fontWeight: 600,
-                  }}
-                >
+                <div className="success-banner-compact flex-row">
                   <CheckCircle size={16} />
-                  <span>{lastExported.count} registos exportados com sucesso</span>
+                  <span>{lastExported.count} registos exportados</span>
                 </div>
               )}
 
               <button
-                className="btn"
+                className="btn btn-full"
                 onClick={() => handleExport(option)}
                 disabled={isExporting}
                 style={{
-                  marginTop: "auto",
                   opacity: isExporting ? 0.6 : 1,
-                  width: "100%",
                 }}
               >
                 <Download size={18} />

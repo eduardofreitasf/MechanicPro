@@ -42,7 +42,7 @@ export interface PresetPalette {
 export const PRESET_PALETTES: PresetPalette[] = [
   {
     id: "indigo",
-    name: "Índigo Moderno",
+    name: "Azul",
     primaryColor: "#6366f1",
     accentColor: "#4f46e5",
     headerBgColor: "#f0f4ff",
@@ -50,7 +50,7 @@ export const PRESET_PALETTES: PresetPalette[] = [
   },
   {
     id: "navy",
-    name: "Azul Clássico",
+    name: "Azul Escuro",
     primaryColor: "#1e3a8a",
     accentColor: "#2563eb",
     headerBgColor: "#eff6ff",
@@ -58,7 +58,7 @@ export const PRESET_PALETTES: PresetPalette[] = [
   },
   {
     id: "emerald",
-    name: "Verde Esmeralda",
+    name: "Verde",
     primaryColor: "#059669",
     accentColor: "#10b981",
     headerBgColor: "#ecfdf5",
@@ -66,7 +66,7 @@ export const PRESET_PALETTES: PresetPalette[] = [
   },
   {
     id: "crimson",
-    name: "Vermelho Corrida",
+    name: "Vermelho",
     primaryColor: "#dc2626",
     accentColor: "#b91c1c",
     headerBgColor: "#fef2f2",
@@ -74,7 +74,7 @@ export const PRESET_PALETTES: PresetPalette[] = [
   },
   {
     id: "dry-slate",
-    name: "Corporativo (Grafite)",
+    name: "Corporativo",
     primaryColor: "#1e293b",
     accentColor: "#334155",
     headerBgColor: "#f8fafc",
@@ -82,7 +82,7 @@ export const PRESET_PALETTES: PresetPalette[] = [
   },
   {
     id: "official-bw",
-    name: "Monocromático Oficial (B&W)",
+    name: "Monocromático",
     primaryColor: "#000000",
     accentColor: "#333333",
     headerBgColor: "#ffffff",
@@ -115,4 +115,30 @@ export const DEFAULT_PDF_CONFIG: PdfTemplateConfig = {
   showLaborDetails: false,
   showFooter: false,
   footerNote: "Obrigado pela sua preferência! Garantia de 2 anos em todas as reparações efetuadas.",
+};
+
+export interface BackupConfig {
+  enabled: boolean;
+  frequency: "daily" | "weekly" | "monthly";
+  method: "local" | "email";
+  localPath: string;
+  emailHost: string;
+  emailPort: number;
+  emailUser: string;
+  emailPass: string;
+  emailTo: string;
+  lastBackupDate: string | null;
+}
+
+export const DEFAULT_BACKUP_CONFIG: BackupConfig = {
+  enabled: false,
+  frequency: "monthly",
+  method: "local",
+  localPath: "",
+  emailHost: "",
+  emailPort: 587,
+  emailUser: "",
+  emailPass: "",
+  emailTo: "",
+  lastBackupDate: null,
 };

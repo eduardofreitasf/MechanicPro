@@ -1,0 +1,568 @@
+/* Settings Page Custom Styles & Layout Reorganization */
+
+/* Target layout wrapper ONLY when settings page is active to prevent page scrolling */
+.main-content:has(.settings-page-root) {
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 40px 40px 24px 40px;
+}
+
+.settings-page-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  width: 100%;
+}
+
+
+
+/* Template Tab Layout */
+.settings-split-layout {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 32px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  align-items: stretch;
+}
+
+.settings-form-pane {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+  padding-right: 12px;
+  padding-bottom: 24px;
+}
+
+/* Compact input items spacing in Settings Form */
+.settings-form-pane .form-group {
+  margin-bottom: 8px; /* Remove default large bottom margins */
+  gap: 4px; /* Reduce title-to-input gap */
+}
+
+.settings-form-pane .fieldset-content {
+  gap: 12px; /* Reduce gap between form elements */
+}
+
+.settings-preview-pane {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  color: var(--text-muted);
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f1f5f9;
+  border: 1px solid var(--border);
+  padding: 4px 8px;
+  border-radius: 8px;
+  text-transform: none;
+  font-weight: normal;
+  letter-spacing: normal;
+}
+
+.zoom-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.zoom-btn:hover:not(:disabled) {
+  background: #e2e8f0;
+  color: var(--text);
+}
+
+.zoom-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.zoom-percentage {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text);
+  min-width: 36px;
+  text-align: center;
+}
+
+.preview-frame {
+  flex: 1;
+  min-height: 0;
+  overflow: auto; /* Allow both vertical and horizontal scrollbars if zoomed document overflows */
+  background: #cbd5e1; /* Slate sheet canvas */
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.preview-paper {
+  width: 794px; /* Render at A4 paper width (96 DPI) */
+  min-height: 1123px; /* A4 height at 96 DPI to represent paper sheet */
+  background: #ffffff;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.15);
+  transform-origin: top center;
+  flex-shrink: 0;
+  border-radius: 4px;
+  border: 1px solid rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Clean Custom Form Sections (Headers inside cards) */
+.settings-form-section {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  background: var(--surface);
+  margin-bottom: 24px;
+}
+
+.settings-form-section:last-child {
+  margin-bottom: 0;
+}
+
+.settings-form-section-header {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 10px;
+}
+
+/* Logo Upload styling */
+.logo-upload-zone {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+  margin-top: 4px;
+}
+
+.logo-upload-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.checkbox-input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+}
+
+.btn-sm-upload {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  padding: 8px 16px;
+}
+
+.danger-text {
+  font-size: 0.85rem;
+  color: var(--danger);
+  background: transparent;
+  border: 1px solid transparent;
+}
+
+.danger-text:hover {
+  background: #fee2e2;
+  color: var(--danger);
+}
+
+/* Colors Preset list */
+.preset-palettes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+.preset-palette-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+}
+
+.preset-palette-btn:hover {
+  border-color: var(--text-muted);
+  background: #f8fafc;
+}
+
+.preset-palette-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  flex-shrink: 0;
+}
+
+.preset-palette-btn span {
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Color inputs */
+.color-input-wrapper {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.color-picker-input {
+  width: 42px;
+  height: 38px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  background: transparent;
+}
+
+.color-text-input {
+  flex: 1;
+}
+
+/* Layout selection grid */
+.layout-styles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.layout-style-btn {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.layout-style-btn:hover {
+  border-color: var(--text-muted);
+  background: #f8fafc;
+}
+
+.layout-style-btn.active {
+  border: 2px solid var(--primary);
+  background: #f0f7ff;
+}
+
+.layout-style-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.layout-style-btn.active .layout-style-title {
+  color: var(--primary);
+}
+
+.layout-style-desc {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+  font-weight: 400;
+}
+
+/* Visibilities grid */
+.visibility-checkboxes-section {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+
+.checkboxes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+}
+
+.checkbox-label-dense {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.checkbox-label-dense input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+/* Tab 2: Backup and Data Layout */
+.settings-data-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 12px;
+  padding-bottom: 24px;
+}
+
+.settings-data-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings-section-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+}
+
+.settings-section-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 4px 0;
+}
+
+.settings-section-desc {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.form-card-padding {
+  padding: 24px;
+}
+
+.smtp-config-container {
+  border: 1px solid var(--border);
+  padding: 20px;
+  border-radius: 8px;
+  background: #f8fafc;
+  margin-top: 8px;
+}
+
+/* CSV Grids */
+.settings-grid-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.data-card {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: all 0.2s ease;
+}
+
+.data-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.data-card-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #eff6ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.data-card-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.data-card-badge-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.data-card-badge-wrap span {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.data-card-desc {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  flex-grow: 1;
+}
+
+.btn-full {
+  width: 100%;
+}
+
+.success-banner-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  background: #f0fdf4;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #16a34a;
+  font-weight: 600;
+  border: 1px solid #dcfce7;
+}
+
+.success-banner-compact.flex-row {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.success-banner-compact-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.success-banner-compact-detail {
+  color: var(--text-muted);
+  padding-left: 22px;
+  font-weight: 400;
+}
+
+.error-banner {
+  background: #fef2f2;
+  border: 1px solid #fee2e2;
+  padding: 14px 18px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #b91c1c;
+  font-size: 0.9rem;
+}
+
+.note-card {
+  padding: 20px;
+  background: #f8fafc;
+}
+
+.note-card h4 {
+  margin: 0 0 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+}
+
+.note-card ul {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  padding-left: 20px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Breakpoints */
+@media (max-width: 1200px) {
+  .main-content:has(.settings-page-root) {
+    overflow-y: auto;
+    height: auto;
+    padding-bottom: 40px;
+  }
+  
+  .settings-page-root {
+    height: auto;
+    min-height: auto;
+  }
+  
+  .settings-split-layout {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    height: auto;
+    min-height: auto;
+    overflow: visible;
+    flex: none;
+  }
+  
+  .settings-form-pane {
+    height: auto;
+    overflow: visible;
+    padding-right: 0;
+    padding-bottom: 0;
+  }
+  
+  .settings-preview-pane {
+    height: auto;
+    overflow: visible;
+  }
+  
+  .preview-frame {
+    height: auto;
+    min-height: 650px;
+    overflow: visible;
+  }
+}
