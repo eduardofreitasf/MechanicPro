@@ -9,9 +9,11 @@ import {
   CheckCircle,
   Upload,
   Eye,
+  Database,
+  FolderOpen
 } from "lucide-react";
 import { useSettingsStore } from "../store/useSettingsStore";
-import { PRESET_PALETTES, PdfTemplateConfig } from "../types/config";
+import { PRESET_PALETTES, PdfTemplateConfig, BackupConfig } from "../types/config";
 import { PrintTemplate } from "../components/PrintTemplate";
 import { ServiceOrder } from "../db";
 
@@ -39,11 +41,12 @@ const MOCK_PREVIEW_ORDER: ServiceOrder = {
 };
 
 export function SettingsPage() {
-  const { pdfConfig, loadSettings, updatePdfConfig, resetPdfConfig } = useSettingsStore();
+  const { pdfConfig, backupConfig, loadSettings, updatePdfConfig, updateBackupConfig, resetPdfConfig } = useSettingsStore();
 
   const [formData, setFormData] = useState<PdfTemplateConfig>(pdfConfig);
+  const [backupData, setBackupData] = useState<BackupConfig>(backupConfig);
   const [showSavedToast, setShowSavedToast] = useState(false);
-  const [activeTab, setActiveTab] = useState<"branding" | "colors" | "layout" | "footer">("branding");
+  const [activeTab, setActiveTab] = useState<"branding" | "colors" | "layout" | "footer" | "backup">("branding");
 
   useEffect(() => {
     loadSettings();
@@ -51,13 +54,21 @@ export function SettingsPage() {
 
   useEffect(() => {
     setFormData(pdfConfig);
-  }, [pdfConfig]);
+    setBackupData(backupConfig);
+  }, [pdfConfig, backupConfig]);
 
   const handleChange = <K extends keyof PdfTemplateConfig>(
     field: K,
     value: PdfTemplateConfig[K]
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleBackupChange = <K extends keyof BackupConfig>(
+    field: K,
+    value: BackupConfig[K]
+  ) => {
+    setBackupData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleApplyPalette = (paletteId: string) => {
@@ -75,6 +86,7 @@ export function SettingsPage() {
 
   const handleSave = async () => {
     await updatePdfConfig(formData);
+    await updateBackupConfig(backupData);
     setShowSavedToast(true);
     setTimeout(() => setShowSavedToast(false), 3000);
   };
@@ -268,6 +280,29 @@ export function SettingsPage() {
             >
               <FileText size={16} />
               <span>Rodapé</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("backup")}
+              style={{
+                flex: 1,
+                padding: "10px 12px",
+                borderRadius: "8px",
+                border: "none",
+                background: activeTab === "backup" ? "#ffffff" : "transparent",
+                fontWeight: activeTab === "backup" ? 700 : 500,
+                color: activeTab === "backup" ? "var(--primary)" : "var(--text-muted)",
+                boxShadow: activeTab === "backup" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                fontSize: "0.85rem",
+              }}
+            >
+              <Database size={16} />
+              <span>Backup</span>
             </button>
           </div>
 
@@ -655,6 +690,115 @@ export function SettingsPage() {
                       style={{ width: "100%", resize: "vertical" }}
                     />
                   </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 5: BACKUP */}
+          {activeTab === "backup" && (
+            <div className="card" style={{ padding: "24px" }}>
+              <h3 style={{ marginTop: 0, marginBottom: "16px" }}>Automated Database Backup</h3>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", fontWeight: 600 }}>
+                  <input
+                    type="checkbox"
+                    checked={backupData.enabled}
+                    onChange={(e) => handleBackupChange("enabled", e.target.checked)}
+                    style={{ width: "18px", height: "18px", accentColor: "var(--primary)" }}
+                  />
+                  <span>Ativar Backups Automáticos</span>
+                </label>
+
+                {backupData.enabled && (
+                  <>
+                    <div>
+                      <label className="form-label">Frequência</label>
+                      <select
+                        className="input-field"
+                        value={backupData.frequency}
+                        onChange={(e) => handleBackupChange("frequency", e.target.value as any)}
+                      >
+                        <option value="daily">Diário</option>
+                        <option value="weekly">Semanal</option>
+                        <option value="monthly">Mensal</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="form-label">Método de Backup</label>
+                      <select
+                        className="input-field"
+                        value={backupData.method}
+                        onChange={(e) => handleBackupChange("method", e.target.value as any)}
+                      >
+                        <option value="local">Pasta Local</option>
+                        <option value="email">Email (SMTP)</option>
+                      </select>
+                    </div>
+
+                    {backupData.method === "local" && (
+                      <div>
+                        <label className="form-label">Pasta de Destino Local</label>
+                        <div style={{ display: "flex", gap: "8px" }}>
+                          <input
+                            type="text"
+                            className="input-field"
+                            value={backupData.localPath}
+                            readOnly
+                            placeholder="Selecione uma pasta..."
+                            style={{ flex: 1 }}
+                          />
+                          <button
+                            className="btn-secondary"
+                            onClick={async () => {
+                                const { open } = await import('@tauri-apps/plugin-dialog');
+                                const selected = await open({ directory: true, multiple: false });
+                                if (selected && typeof selected === 'string') {
+                                    handleBackupChange("localPath", selected);
+                                }
+                            }}
+                            style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                          >
+                            <FolderOpen size={16} /> Selecionar
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {backupData.method === "email" && (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "12px", border: "1px solid var(--border)", padding: "16px", borderRadius: "8px", background: "#f8fafc" }}>
+                        <h4 style={{ margin: 0, fontSize: "0.95rem", color: "var(--primary)" }}>Configurações SMTP</h4>
+                        
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                            <div>
+                                <label className="form-label">Host SMTP</label>
+                                <input type="text" className="input-field" value={backupData.emailHost} onChange={(e) => handleBackupChange("emailHost", e.target.value)} placeholder="smtp.gmail.com" />
+                            </div>
+                            <div>
+                                <label className="form-label">Porta</label>
+                                <input type="number" className="input-field" value={backupData.emailPort} onChange={(e) => handleBackupChange("emailPort", parseInt(e.target.value) || 587)} placeholder="587" />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="form-label">Email Remetente (Username)</label>
+                            <input type="text" className="input-field" value={backupData.emailUser} onChange={(e) => handleBackupChange("emailUser", e.target.value)} placeholder="tu@email.com" />
+                        </div>
+                        
+                        <div>
+                            <label className="form-label">Password (App Password)</label>
+                            <input type="password" className="input-field" value={backupData.emailPass} onChange={(e) => handleBackupChange("emailPass", e.target.value)} placeholder="****" />
+                        </div>
+                        
+                        <div>
+                            <label className="form-label">Email Destino (Para onde enviar?)</label>
+                            <input type="text" className="input-field" value={backupData.emailTo} onChange={(e) => handleBackupChange("emailTo", e.target.value)} placeholder="teu-backup@email.com" />
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>
