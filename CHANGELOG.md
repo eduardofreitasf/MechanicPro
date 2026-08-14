@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0](https://github.com/eduardofreitasf/MechanicPro/compare/v1.2.0...v1.3.0) (2026-08-14)
+
+
+### Features
+
+* automated backups ([cf23241](https://github.com/eduardofreitasf/MechanicPro/commit/cf232410414a7d0308ee1c18cbf1d68cd2cd1ce2))
+* **backend:** add local and email database backup commands ([aed20c2](https://github.com/eduardofreitasf/MechanicPro/commit/aed20c28bf99070dfe3811aefb8b4541f0db8b41))
+* **settings:** add automated backup scheduler and UI configuration ([2c58325](https://github.com/eduardofreitasf/MechanicPro/commit/2c583252f2f20ec6f72440c6d00a7c41ff958cfb))
+* **settings:** create modular settings form and utility components ([bddc809](https://github.com/eduardofreitasf/MechanicPro/commit/bddc80951be5f6b47446d6cb061a2201f21cd5b3))
+
 ## [1.2.0](https://github.com/eduardofreitasf/MechanicPro/compare/v1.1.0...v1.2.0) (2026-08-13)
 
 
