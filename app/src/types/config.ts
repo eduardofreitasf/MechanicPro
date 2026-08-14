@@ -116,3 +116,29 @@ export const DEFAULT_PDF_CONFIG: PdfTemplateConfig = {
   showFooter: false,
   footerNote: "Obrigado pela sua preferência! Garantia de 2 anos em todas as reparações efetuadas.",
 };
+
+export interface BackupConfig {
+  enabled: boolean;
+  frequency: "daily" | "weekly" | "monthly";
+  method: "local" | "email";
+  localPath: string;
+  emailHost: string;
+  emailPort: number;
+  emailUser: string;
+  emailPass: string;
+  emailTo: string;
+  lastBackupDate: string | null;
+}
+
+export const DEFAULT_BACKUP_CONFIG: BackupConfig = {
+  enabled: false,
+  frequency: "monthly",
+  method: "local",
+  localPath: "",
+  emailHost: "",
+  emailPort: 587,
+  emailUser: "",
+  emailPass: "",
+  emailTo: "",
+  lastBackupDate: null,
+};

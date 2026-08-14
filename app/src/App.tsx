@@ -10,9 +10,12 @@ import { ExportPage } from "./pages/ExportPage";
 import { ImportPage } from "./pages/ImportPage";
 import { ExpensesPage } from "./pages/ExpensesPage";
 import { SettingsPage } from "./pages/SettingsPage";
+import { useBackupScheduler } from "./hooks/useBackupScheduler";
 import "./App.css";
 
 function App() {
+  useBackupScheduler();
+  
   return (
     <BrowserRouter>
       <Routes>
