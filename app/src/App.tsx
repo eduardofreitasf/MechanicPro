@@ -6,8 +6,6 @@ import { VehiclesPage } from "./pages/VehiclesPage";
 import { ServicesPage } from "./pages/ServicesPage";
 import { CreateServiceOrderPage } from "./pages/CreateServiceOrderPage";
 import { ServiceOrderDetailsPage } from "./pages/ServiceOrderDetailsPage";
-import { ExportPage } from "./pages/ExportPage";
-import { ImportPage } from "./pages/ImportPage";
 import { ExpensesPage } from "./pages/ExpensesPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { useBackupScheduler } from "./hooks/useBackupScheduler";
@@ -27,8 +25,6 @@ function App() {
           <Route path="services/new" element={<CreateServiceOrderPage />} />
           <Route path="services/edit/:id" element={<CreateServiceOrderPage />} />
           <Route path="services/:id" element={<ServiceOrderDetailsPage />} />
-          <Route path="import" element={<ImportPage />} />
-          <Route path="export" element={<ExportPage />} />
           <Route path="expenses" element={<ExpensesPage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>
